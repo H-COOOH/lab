@@ -1,0 +1,227 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<title>细胞游戏</title>
+	</head>
+	<body>
+		<h1>细胞游戏</h1>
+		<h3>规则：循环执行以下步骤</h3>
+		<ol>
+			<li>新生：选择一个与我方细胞相邻的空白格，使其成为我方细胞。</li>
+			<li>繁殖-敌：对于一个空白格，若周围2个敌方细胞，则1/4概率成为敌方细胞；若周围3个敌方细胞，则成为敌方细胞；若周围4个敌方细胞，则1/8概率成为敌方细胞。</li>
+			<li>繁殖-我：对于一个空白格，若周围3个我方细胞，则成为我方细胞。</li>
+			<li>死亡：对于一个细胞，若周围超过4个细胞，则死亡（成为空白格）；若周围少于2个同方细胞，则死亡。</li>
+			<li>判断：若不存在我方细胞，则敌方胜利；若不存在敌方细胞，则我方胜利。</li>
+		</ol>
+		<h2 id="res"></h2>
+		<div id="sel" style="zoom:120%">
+			<span><b>难度</b>：</span>
+			<select id="si">
+				<option value="1">小试牛刀</option>
+				<option value="2">杀出重围</option>
+				<option value="3">十面埋伏</option>
+				<option value="4" disabled>设计中…</option>
+			</select>
+			<button onclick="go()">确定</button>
+		</div>
+		<table id="chess" border="1" style="font-size:18px;"></table><br>
+		<button onclick="location.reload()" style="width:50px;height:30px;zoom:120%;">Again</button>
+		&emsp;&emsp;<a href="/lab/index.html">返回</a>
+	</body>
+	<script>
+		var M=50,N=50;
+		var s=new Array(),u=new Array();
+		for (var i=0;i<=N+1;i++)
+		{
+			s[i]=new Array();
+			for (var j=0;j<=M+1;j++)
+			{s[i][j]=0;}
+		}
+		for (var i=0;i<=N+1;i++)
+		{
+			u[i]=new Array();
+			for (var j=0;j<=M+1;j++)
+			{u[i][j]=new Array();u[i][j][0]=0;u[i][j][1]=0;}
+		}
+		function go()
+		{
+			document.getElementById("sel").style.display="none";
+			var r=document.getElementById("si").options[document.getElementById("si").selectedIndex].value;
+			if (r==1)
+			{
+				M=9,N=15;
+				s[1][3]=-1;s[1][7]=-1;
+				s[2][2]=-1;s[2][4]=-1;
+				s[2][6]=-1;s[2][8]=-1;
+				s[3][3]=-1;s[3][7]=-1;
+				s[10][5]=1;s[12][4]=1;s[12][6]=1;
+				draw();
+			}
+			else if (r==2)
+			{
+				M=11,N=13;
+				s[1][2]=-1;s[1][6]=-1;s[1][10]=-1;
+				s[2][1]=-1;s[2][3]=-1;s[2][5]=-1;
+				s[2][7]=-1;s[2][9]=-1;s[2][11]=-1;
+				s[3][2]=-1;s[3][6]=-1;s[3][10]=-1;
+				s[6][2]=-1;s[6][10]=-1;
+				s[7][1]=-1;s[7][3]=-1;
+				s[7][9]=-1;s[7][11]=-1;
+				s[8][2]=-1;s[8][10]=-1;
+				s[3][2]=-1;s[3][6]=-1;s[3][10]=-1;
+				s[10][6]=1;s[12][5]=1;s[12][7]=1;
+				draw();
+			}
+			else if (r==3)
+			{
+				M=15,N=15;
+				s[1][2]=-1;s[1][8]=-1;s[1][14]=-1;
+				s[2][1]=-1;s[2][3]=-1;s[2][7]=-1;
+				s[2][9]=-1;s[2][13]=-1;s[2][15]=-1;
+				s[3][2]=-1;s[3][8]=-1;s[3][14]=-1;
+				s[7][2]=-1;s[7][14]=-1;
+				s[8][1]=-1;s[8][3]=-1;
+				s[8][13]=-1;s[8][15]=-1;
+				s[9][2]=-1;s[9][14]=-1;
+				s[13][2]=-1;s[13][8]=-1;s[13][14]=-1;
+				s[14][1]=-1;s[14][3]=-1;s[14][7]=-1;
+				s[14][9]=-1;s[14][13]=-1;s[14][15]=-1;
+				s[15][2]=-1;s[15][8]=-1;s[15][14]=-1;
+				s[7][8]=1;s[8][7]=1;s[8][9]=1;s[9][8]=1;
+				s[9][2]=-1;s[9][14]=-1;
+				draw();
+			}
+		}
+		function clear()
+		{
+			for (var i=1;i<=N;i++)
+			{
+				for (var j=1;j<=M;j++)
+				{
+					u[i][j][0]=0;u[i][j][1]=0;
+					for (var _i=i-1;_i<=i+1;_i++)
+					{
+						for (var _j=j-1;_j<=j+1;_j++)
+						{
+							if (_i==i&&_j==j)
+							{continue;}
+							if (s[_i][_j]==1)
+							{u[i][j][0]++;}
+							if (s[_i][_j]==-1)
+							{u[i][j][1]++;}
+						}
+					}
+				}
+			}
+		}
+		function more()
+		{
+			clear();
+			for (var i=1;i<=N;i++)
+			{
+				for (var j=1;j<=M;j++)
+				{
+					if (s[i][j]!=0)
+					{continue;}
+					if (u[i][j][1]==2&&!Math.floor(Math.random()*4))
+					{s[i][j]=-1;continue;}
+					if (u[i][j][1]==3)
+					{s[i][j]=-1;continue;}
+					if (u[i][j][1]==4&&!Math.floor(Math.random()*8))
+					{s[i][j]=-1;continue;}
+					if (u[i][j][0]==3)
+					{s[i][j]=1;continue;}
+				}
+			}
+		}
+		function less()
+		{
+			clear();
+			for (var i=1;i<=N;i++)
+			{
+				for (var j=1;j<=M;j++)
+				{
+					if (s[i][j]==0)
+					{continue;}
+					if (u[i][j][0]+u[i][j][1]>=5)
+					{s[i][j]=0;continue;}
+					if (s[i][j]==1&&u[i][j][0]<=1)
+					{s[i][j]=0;continue;}
+					if (s[i][j]==-1&&u[i][j][1]<=1)
+					{s[i][j]=0;continue;}
+				}
+			}
+		}
+		function draw()
+		{
+			var now="";
+			for (var I=1;I<=N;I++)
+			{
+				now=now+"<tr>";
+				for (var i=1;i<=M;i++)
+				{
+					if (s[I][i]==1) now=now+"<td><span style=\"color:red\">X</span></td>";
+					if (s[I][i]==0)
+					{
+						if (s[I-1][i]==1||s[I+1][i]==1||s[I][i-1]==1||s[I][i+1]==1)
+						{now=now+"<td><span onclick=run("+String(I)+","+String(i)+")>&emsp;</span></td>";}
+						else
+						{now=now+"<td><span>&emsp;</span></td>";}
+					}
+					if (s[I][i]==-1) now=now+"<td><span style=\"color:blue\">O</span></td>";
+				}
+				now=now+"</tr>";
+			}
+			document.getElementById("chess").innerHTML=now;
+		}
+		function end()
+		{
+			var flag=true;
+			for (var i=1;i<=N;i++)
+			{
+				for (var j=1;j<=M;j++)
+				{
+					if (s[i][j]==1)
+					{flag=false;}
+				}
+			}
+			if (flag)
+			{return -1;}
+			flag=true;
+			for (var i=1;i<=N;i++)
+			{
+				for (var j=1;j<=M;j++)
+				{
+					if (s[i][j]==-1)
+					{flag=false;}
+				}
+			}
+			if (flag)
+			{return 1;}
+			return 0;
+		}
+		function run(p,q)
+		{
+			s[p][q]=1;
+			more();less();
+			draw();
+			var e=end();
+			if (e!=0)
+			{
+				var all=document.getElementsByTagName("span");
+				for (var i=0;i<all.length;i++)
+				{all[i].onclick="";}
+				if (e==1)
+				{
+					document.getElementById("res").innerText="你赢了";
+					alert("你赢了");
+				}
+				else
+				{
+					document.getElementById("res").innerText="你输了";
+					alert("你输了");
+				}
+			}
+		}
+	</script>
+</html>

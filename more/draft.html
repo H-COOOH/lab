@@ -1,0 +1,214 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<script src="/js/md5.js" type="text/javascript"></script>
+		<script src="/js/AES.js" type="text/javascript"></script>
+		<script src="/js/size.js" type="text/javascript"></script>
+		<title>Draft</title>
+	</head>
+	<body onload="L()">
+		<h1>Draft</h1>
+		<div id="need" style="font-size:17px;">
+			<div id="first" style="display:none;"><h2>请设置您的密码</h2><p style="color:red">注意：请牢记您的密码！</p></div>
+			<div id="title"><h2>内容已锁定，请提供密码</h2></div>
+			<input id="key" type="password" placeholder="请输入密码：" onkeydown=H() style="width:270px;height:40px;">
+			<div id="right"><br><button style="width:270px;height:40px;" onclick="G()">继续</button></div>
+			<div id="wrong" style="display:none;"><h2 style="color:red;">密码错误</h2><p>您可以<ins style="color:-webkit-link;" onclick="A()">重新尝试</ins>或<ins style="color:-webkit-link;" onclick="P()">关闭页面</ins></p></div>
+		</div>
+		<div id="hide" style="display:none;">
+			<textarea id="main" style="width:90%;left:5%;height:80%;font-size:17px;position:absolute;" oninput="J()"></textarea>
+			<div id="set" style="width:90%;left:5%;height:8%;bottom:1%;font-size:17px;position:absolute;">
+				<div id="setc">
+					<button onclick="S()" style="width:25%;height:60%;">保存</button>&emsp;&emsp;
+					<button onclick="R()" style="width:18%;height:60%;">锁定</button>&emsp;&emsp;
+					<button onclick="P()" style="width:18%;height:60%;">关闭</button>&emsp;&emsp;
+					<button onclick="N(1)" style="width:12%;height:60%;">更多</button>&emsp;&emsp;&emsp;
+					<span id="done" style="color:green;display:none;">操作成功完成√</span>
+				</div>
+				<div id="sets" style="display:none;">
+					<button onclick="N(0)" style="width:20%;height:60%;">返回</button>&emsp;&emsp;
+					<button onclick="F()" style="width:12.5%;height:60%;">阻止编辑</button>&emsp;&emsp;
+					<button onclick="I()" style="width:12.5%;height:60%;">手动保存</button>&emsp;&emsp;
+					<button onclick="Q()" style="width:12.5%;height:60%;">放弃保存</button>&emsp;&emsp;
+					<button onclick="C()" style="width:12.5%;height:60%;">修改密码</button>&emsp;&emsp;
+					<button onclick="D()" style="width:12.5%;height:60%;">清空内容</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		var data=localStorage.draftdata,_data,key,flag=0,dis,all;
+		function L()
+		{
+			if (data==undefined)
+			{
+				flag=1;
+				document.getElementById("title").style.display="none";
+				document.getElementById("first").style.display="block";
+			}
+			if (localStorage.draftable=="true")
+			{
+				dis=true;
+				document.getElementById("main").disabled=true;
+				document.getElementById("sets").children[1].innerText="允许编辑";
+			}
+			if (localStorage.draftauto=="true")
+			{
+				all=true;
+				document.getElementById("sets").children[3].disabled=true;
+				document.getElementById("sets").children[2].innerText="自动保存";
+			}
+			document.getElementById("key").focus();
+		}
+		function G()
+		{
+			key=document.getElementById("key").value;
+			if (key=="")
+			{
+				alert("密码不能为空！");
+				return;
+			}
+			if (!flag)
+			{
+				data=LZString.decompressFromUTF16(data);
+				var re=data.substring(32);
+				try{re=CryptoJS.AES.decrypt(re,key).toString(CryptoJS.enc.Utf8);}
+				catch(err){re="";}
+				if (md5(re)!=data.substr(0,32))
+				{
+					data=LZString.compressToUTF16(data);
+					document.getElementById("key").readOnly=true;
+					document.getElementById("right").style.display="none";
+					document.getElementById("wrong").style.display="block";
+					return;
+				}
+				data=re.substring(1);
+				document.getElementById("main").value=data;
+			}
+			else if (flag==1)
+			{localStorage.draftdata=LZString.compressToUTF16(md5("=")+CryptoJS.AES.encrypt("=",key).toString());data="";}
+			else if (flag==2)
+			{localStorage.draftdata=LZString.compressToUTF16(md5("="+data)+CryptoJS.AES.encrypt("="+data,key).toString());}
+			else if (flag==3)
+			{
+				var re=data.substring(32);
+				try{re=CryptoJS.AES.decrypt(re,key).toString(CryptoJS.enc.Utf8);}
+				catch(err){re="";}
+				if (md5(re)!=data.substr(0,32))
+				{
+					document.getElementById("key").readOnly=true;
+					document.getElementById("right").style.display="none";
+					document.getElementById("wrong").style.display="block";
+					return;
+				}
+				data=re.substring(1);
+				document.getElementById("main").value=CryptoJS.AES.decrypt(_data,key).toString(CryptoJS.enc.Utf8);
+				_data="";
+			}
+			document.getElementById("need").style.display="none";
+			document.getElementById("hide").style.display="block";
+		}
+		function A()
+		{
+			document.getElementById("key").value="";
+			document.getElementById("key").readOnly=false;
+			document.getElementById("wrong").style.display="none";
+			document.getElementById("right").style.display="block";
+		}
+		function H()
+		{if (event.keyCode==13) {G();}}
+		function S()
+		{
+			data=document.getElementById("main").value;
+			localStorage.draftdata=LZString.compressToUTF16(md5("="+data)+CryptoJS.AES.encrypt("="+data,key).toString());
+			document.getElementById("done").style.display="inline";
+			setTimeout("document.getElementById('done').style.display='none';",1500);
+		}
+		function R()
+		{
+			data=md5("="+data)+CryptoJS.AES.encrypt("="+data,key).toString();
+			_data=CryptoJS.AES.encrypt(document.getElementById("main").value,key).toString();
+			key="";flag=3;
+			document.getElementById("main").value="";
+			document.getElementById("key").value="";
+			document.getElementById("hide").style.display="none";
+			document.getElementById("first").style.display="none";
+			document.getElementById("title").style.display="block";
+			document.getElementById("need").style.display="block";
+		}
+		function P()
+		{window.close();}
+		function N(k)
+		{
+			if (k)
+			{
+				document.getElementById("setc").style.display="none";
+				document.getElementById("sets").style.display="block";
+			}
+			else
+			{
+				document.getElementById("sets").style.display="none";
+				document.getElementById("setc").style.display="block";
+			}
+		}
+		function F()
+		{
+			if (dis)
+			{
+				localStorage.removeItem("draftable");
+				document.getElementById("main").disabled=false;
+				document.getElementById("sets").children[1].innerText="阻止编辑";
+			}
+			else
+			{
+				localStorage.draftable="true";
+				document.getElementById("main").disabled=true;
+				document.getElementById("sets").children[1].innerText="允许编辑";
+			}
+			dis=!dis;
+		}
+		function I()
+		{
+			if (all)
+			{
+				localStorage.removeItem("draftauto");
+				document.getElementById("sets").children[3].disabled=false;
+				document.getElementById("sets").children[2].innerText="手动保存";
+			}
+			else
+			{
+				localStorage.draftauto="true";
+				document.getElementById("sets").children[3].disabled=true;
+				document.getElementById("sets").children[2].innerText="自动保存";
+			}
+			all=!all;
+		}
+		function J()
+		{
+			if (!all) {return;}
+			data=document.getElementById("main").value;
+			localStorage.draftdata=LZString.compressToUTF16(md5("="+data)+CryptoJS.AES.encrypt("="+data,key).toString());
+		}
+		function Q()
+		{
+			document.getElementById("main").value=data;
+		}
+		function C()
+		{
+			flag=2;
+			document.getElementById("key").value="";
+			document.getElementById("hide").style.display="none";
+			document.getElementById("title").style.display="none";
+			document.getElementById("first").style.display="block";
+			document.getElementById("need").style.display="block";
+		}
+		function D()
+		{
+			var r=confirm("确定清空？\n此操作无法恢复！");
+			if (!r) {return;}
+			data="";
+			localStorage.draftdata=LZString.compressToUTF16(md5("=")+CryptoJS.AES.encrypt("=",key).toString());
+			document.getElementById("main").value="";
+		}
+	</script>
+</html>

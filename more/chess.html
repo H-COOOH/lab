@@ -1,0 +1,502 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<title>五子棋</title>
+	</head>
+	<body onload="draw()">
+		<h1>五子棋</h1>
+		<h3>邀请您与我下局五子棋</h3>
+		<h2 id="res"></h2>
+		<table id="chess" border="1" style="font-size:18px;"></table><br>
+		<button onclick="location.reload()" style="width:50px;height:30px;zoom:120%;">Again</button>
+		&emsp;&emsp;<a href="/lab/index.html">返回</a>
+		</body>
+	<script>
+		var flag=false,Kp,Kq,w;
+		var s=new Array();
+		for (var i=0;i<22;i++)
+		{
+			s[i]=new Array();
+			for (var j=0;j<22;j++)
+			{s[i][j]=0;}
+		}
+		var f=new Array();
+		for (var i=0;i<22;i++)
+		{
+			f[i]=new Array();
+			for (var j=0;j<22;j++)
+			{
+				f[i][j]=new Array();
+				for (var k=0;k<11;k++)
+				{f[i][j][k]=0;}
+			}
+		}
+		function draw()
+		{
+			var now="";
+			for (var I=1;I<=20;I++)
+			{
+				now=now+"<tr>";
+				for (var i=1;i<=20;i++)
+				{
+					if (I==Kp&&i==Kq) {now=now+"<td><span style=\"color:red\"><b>X</b></span></td>";continue;}
+					if (s[I][i]==1) now=now+"<td><span style=\"color:red\">X</span></td>";
+					if (s[I][i]==0) now=now+"<td><span onclick=run("+String(I)+","+String(i)+")>&emsp;</span></td>";
+					if (s[I][i]==-1) now=now+"<td><span style=\"color:blue\">O</span></td>";
+				}
+				now=now+"</tr>";
+			}
+			document.getElementById("chess").innerHTML=now;
+		}
+		function lose(flag)
+		{
+			var now="";
+			for (var I=1;I<=20;I++)
+			{
+				now=now+"<tr>";
+				for (var i=1;i<=20;i++)
+				{
+					if (s[I][i]==1) now=now+"<td><span style=\"color:red\">X</span></td>";
+					if (s[I][i]==0) now=now+"<td><span>&emsp;</span></td>";
+					if (s[I][i]==-1) now=now+"<td><span style=\"color:blue\">O</span></td>";
+				}
+				now=now+"</tr>";
+			}
+			document.getElementById("chess").innerHTML=now;
+			if (flag)
+			{document.getElementById("res").innerText="你输了";alert("你输了！");}
+			else
+			{document.getElementById("res").innerText="你赢了";alert("你赢了？");}
+		}
+		function which(m,n)
+		{
+			var a=m[1],b=m[2],c=m[3],d=m[4];
+			var A=n[1],B=n[2],C=n[3],D=n[4];
+			var e,f,_e,_f,g,E,F,_E,_F,G;
+			if (a<c||a==c&&b>d) {e=a;f=b;_e=c;_f=d;g=0;}
+			else {e=c;f=d;_e=a;_f=b;g=1;}
+			if (A<C||A==C&&B>D) {E=A;F=B;_E=C;_F=D;G=0;}
+			else {E=C;F=D;_E=A;_F=B;G=1;}
+			if (e<E)
+			return true;
+			if (e>E)
+			return false;
+			if (e<2)
+			{
+				if (g>G)
+				return true;
+				if (g<G)
+				return false;
+			}
+			if (f>F||f==F&&_e<_E||f==F&&_e==_E&&_f<_F)
+			return true;
+			return false;
+		}
+		function run(p,q)
+		{
+			s[p][q]=-1;
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==1||s[i][j+1]==1||s[i][j+2]==1||s[i][j+3]==1||s[i][j+4]==1)
+				continue;
+				if (s[i][j]==-1&&s[i][j+1]==-1&&s[i][j+2]==-1&&s[i][j+3]==-1&&s[i][j+4]==-1)
+				flag=true;
+			}
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[j][i]==1||s[j+1][i]==1||s[j+2][i]==1||s[j+3][i]==1||s[j+4][i]==1)
+				continue;
+				if (s[j][i]==-1&&s[j+1][i]==-1&&s[j+2][i]==-1&&s[j+3][i]==-1&&s[j+4][i]==-1)
+				flag=true;
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==1||s[i+1][j+1]==1||s[i+2][j+2]==1||s[i+3][j+3]==1||s[i+4][j+4]==1)
+				continue;
+				if (s[i][j]==-1&&s[i+1][j+1]==-1&&s[i+2][j+2]==-1&&s[i+3][j+3]==-1&&s[i+4][j+4]==-1)
+				flag=true;
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=20;j>=5;j--)
+			{
+				if (s[i][j]==1||s[i+1][j-1]==1||s[i+2][j-2]==1||s[i+3][j-3]==1||s[i+4][j-4]==1)
+				continue;
+				if (s[i][j]==-1&&s[i+1][j-1]==-1&&s[i+2][j-2]==-1&&s[i+3][j-3]==-1&&s[i+4][j-4]==-1)
+				flag=true;
+			}
+			if (flag)
+			{lose(false);return;}
+			for (var i=0;i<=20;i++)
+			for (var j=0;j<=20;j++)
+			{
+				f[i][j][1]=5;f[i][j][3]=5;f[i][j][5]=5;f[i][j][7]=5;
+				f[i][j][2]=0;f[i][j][4]=0;f[i][j][6]=0;f[i][j][8]=0;
+			}
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==1||s[i][j+1]==1||s[i][j+2]==1||s[i][j+3]==1||s[i][j+4]==1)
+				continue;
+				w=5;
+				if (s[i][j]==-1) w--;
+				if (s[i][j+1]==-1) w--;
+				if (s[i][j+2]==-1) w--;
+				if (s[i][j+3]==-1) w--;
+				if (s[i][j+4]==-1) w--;
+				if (s[i][j]==0)
+				{
+					if (f[i][j][1]>w) {f[i][j][1]=w;f[i][j][2]=1;}
+					if (f[i][j][1]==w) f[i][j][2]++;
+				}
+				if (s[i][j+1]==0)
+				{
+					if (f[i][j+1][1]>w) {f[i][j+1][1]=w;f[i][j+1][2]=1;}
+					if (f[i][j+1][1]==w) f[i][j+1][2]++;
+				}
+				if (s[i][j+2]==0)
+				{
+					if (f[i][j+2][1]>w) {f[i][j+2][1]=w;f[i][j+2][2]=1;}
+					if (f[i][j+2][1]==w) f[i][j+2][2]++;
+				}
+				if (s[i][j+3]==0)
+				{
+					if (f[i][j+3][1]>w) {f[i][j+3][1]=w;f[i][j+3][2]=1;}
+					if (f[i][j+3][1]==w) f[i][j+3][2]++;
+				}
+				if (s[i][j+4]==0)
+				{
+					if (f[i][j+4][1]>w) {f[i][j+4][1]=w;f[i][j+4][2]=1;}
+					if (f[i][j+4][1]==w) f[i][j+4][2]++;
+				}
+			}
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[j][i]==1||s[j+1][i]==1||s[j+2][i]==1||s[j+3][i]==1||s[j+4][i]==1)
+				continue;
+				w=5;
+				if (s[j][i]==-1) w--;
+				if (s[j+1][i]==-1) w--;
+				if (s[j+2][i]==-1) w--;
+				if (s[j+3][i]==-1) w--;
+				if (s[j+4][i]==-1) w--;
+				if (s[j][i]==0)
+				{
+					if (f[j][i][1]>w) {f[j][i][1]=w;f[j][i][2]=1;}
+					if (f[j][i][1]==w) f[j][i][2]++;
+				}
+				if (s[j+1][i]==0)
+				{
+					if (f[j+1][i][1]>w) {f[j+1][i][1]=w;f[j+1][i][2]=1;}
+					if (f[j+1][i][1]==w) f[j+1][i][2]++;
+				}
+				if (s[j+2][i]==0)
+				{
+					if (f[j+2][i][1]>w) {f[j+2][i][1]=w;f[j+2][i][2]=1;}
+					if (f[j+2][i][1]==w) f[j+2][i][2]++;
+				}
+				if (s[j+3][i]==0)
+				{
+					if (f[j+3][i][1]>w) {f[j+3][i][1]=w;f[j+3][i][2]=1;}
+					if (f[j+3][i][1]==w) f[j+3][i][2]++;
+				}
+				if (s[j+4][i]==0)
+				{
+					if (f[j+4][i][1]>w) {f[j+4][i][1]=w;f[j+4][i][2]=1;}
+					if (f[j+4][i][1]==w) f[j+4][i][2]++;
+				}
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=1;j<=16;j++)
+			{     
+				if (s[i][j]==1||s[i+1][j+1]==1||s[i+2][j+2]==1||s[i+3][j+3]==1||s[i+4][j+4]==1)
+				continue;
+				w=5;
+				if (s[i][j]==-1) w--;
+				if (s[i+1][j+1]==-1) w--;
+				if (s[i+2][j+2]==-1) w--;
+				if (s[i+3][j+3]==-1) w--;
+				if (s[i+4][j+4]==-1) w--;
+				if (s[i][j]==0)
+				{
+					if (f[i][j][1]>w) {f[i][j][1]=w;f[i][j][2]=1;}
+					if (f[i][j][1]==w) f[i][j][2]++;
+				}
+				if (s[i+1][j+1]==0)
+				{
+					if (f[i+1][j+1][1]>w) {f[i+1][j+1][1]=w;f[i+1][j+1][2]=1;}
+					if (f[i+1][j+1][1]==w) f[i+1][j+1][2]++;
+				}
+				if (s[i+2][j+2]==0)
+				{
+					if (f[i+2][j+2][1]>w) {f[i+2][j+2][1]=w;f[i+2][j+2][2]=1;}
+					if (f[i+2][j+2][1]==w) f[i+2][j+2][2]++;
+				}
+				if (s[i+3][j+3]==0)
+				{
+					if (f[i+3][j+3][1]>w) {f[i+3][j+3][1]=w;f[i+3][j+3][2]=1;}
+					if (f[i+3][j+3][1]==w) f[i+3][j+3][2]++;
+				}
+				if (s[i+4][j+4]==0)
+				{
+					if (f[i+4][j+4][1]>w) {f[i+4][j+4][1]=w;f[i+4][j+4][2]=1;}
+					if (f[i+4][j+4][1]==w) f[i+4][j+4][2]++;
+				}
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=20;j>=5;j--)
+			{
+				if (s[i][j]==1||s[i+1][j-1]==1||s[i+2][j-2]==1||s[i+3][j-3]==1||s[i+4][j-4]==1)
+				continue;
+				w=5;
+				if (s[i][j]==-1) w--;
+				if (s[i+1][j-1]==-1) w--;
+				if (s[i+2][j-2]==-1) w--;
+				if (s[i+3][j-3]==-1) w--;
+				if (s[i+4][j-4]==-1) w--;
+				if (s[i][j]==0)
+				{
+					if (f[i][j][1]>w) {f[i][j][1]=w;f[i][j][2]=1;}
+					if (f[i][j][1]==w) f[i][j][2]++;
+				}
+				if (s[i+1][j-1]==0)
+				{
+					if (f[i+1][j-1][1]>w) {f[i+1][j-1][1]=w;f[i+1][j-1][2]=1;}
+					if (f[i+1][j-1][1]==w) f[i+1][j-1][2]++;
+				}
+				if (s[i+2][j-2]==0)
+				{
+					if (f[i+2][j-2][1]>w) {f[i+2][j-2][1]=w;f[i+2][j-2][2]=1;}
+					if (f[i+2][j-2][1]==w) f[i+2][j-2][2]++;
+				}
+				if (s[i+3][j-3]==0)
+				{
+					if (f[i+3][j-3][1]>w) {f[i+3][j-3][1]=w;f[i+3][j-3][2]=1;}
+					if (f[i+3][j-3][1]==w) f[i+3][j-3][2]++;
+				}
+				if (s[i+4][j-4]==0)
+				{
+					if (f[i+4][j-4][1]>w) {f[i+4][j-4][1]=w;f[i+4][j-4][2]=1;}
+					if (f[i+4][j-4][1]==w) f[i+4][j-4][2]++;
+				}
+			}
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==-1||s[i][j+1]==-1||s[i][j+2]==-1||s[i][j+3]==-1||s[i][j+4]==-1)
+				continue;
+				w=5;
+				if (s[i][j]==1) w--;
+				if (s[i][j+1]==1) w--;
+				if (s[i][j+2]==1) w--;
+				if (s[i][j+3]==1) w--;
+				if (s[i][j+4]==1) w--;
+				if (s[i][j]==0)
+				{
+					if (f[i][j][3]>w) {f[i][j][3]=w;f[i][j][4]=1;}
+					if (f[i][j][3]==w) f[i][j][4]++;
+				}
+				if (s[i][j+1]==0)
+				{
+					if (f[i][j+1][3]>w) {f[i][j+1][3]=w;f[i][j+1][4]=1;}
+					if (f[i][j+1][3]==w) f[i][j+1][4]++;
+				}
+				if (s[i][j+2]==0)
+				{
+					if (f[i][j+2][3]>w) {f[i][j+2][3]=w;f[i][j+2][4]=1;}
+					if (f[i][j+2][3]==w) f[i][j+2][4]++;
+				}
+				if (s[i][j+3]==0)
+				{
+					if (f[i][j+3][3]>w) {f[i][j+3][3]=w;f[i][j+3][4]=1;}
+					if (f[i][j+3][3]==w) f[i][j+3][4]++;
+				}
+				if (s[i][j+4]==0)
+				{
+					if (f[i][j+4][3]>w) {f[i][j+4][3]=w;f[i][j+4][4]=1;}
+					if (f[i][j+4][3]==w) f[i][j+4][4]++;
+				}
+			}
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[j][i]==-1||s[j+1][i]==-1||s[j+2][i]==-1||s[j+3][i]==-1||s[j+4][i]==-1)
+				continue;
+				w=5;
+				if (s[j][i]==1) w--;
+				if (s[j+1][i]==1) w--;
+				if (s[j+2][i]==1) w--;
+				if (s[j+3][i]==1) w--;
+				if (s[j+4][i]==1) w--;
+				if (s[j][i]==0)
+				{
+					if (f[j][i][3]>w) {f[j][i][3]=w;f[j][i][4]=1;}
+					if (f[j][i][3]==w) f[j][i][4]++;
+				}
+				if (s[j+1][i]==0)
+				{
+					if (f[j+1][i][3]>w) {f[j+1][i][3]=w;f[j+1][i][4]=1;}
+					if (f[j+1][i][3]==w) f[j+1][i][4]++;
+				}
+				if (s[j+2][i]==0)
+				{
+					if (f[j+2][i][3]>w) {f[j+2][i][3]=w;f[j+2][i][4]=1;}
+					if (f[j+2][i][3]==w) f[j+2][i][4]++;
+				}
+				if (s[j+3][i]==0)
+				{
+					if (f[j+3][i][3]>w) {f[j+3][i][3]=w;f[j+3][i][4]=1;}
+					if (f[j+3][i][3]==w) f[j+3][i][4]++;
+				}
+				if (s[j+4][i]==0)
+				{
+					if (f[j+4][i][3]>w) {f[j+4][i][3]=w;f[j+4][i][4]=1;}
+					if (f[j+4][i][3]==w) f[j+4][i][4]++;
+				}
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==-1||s[i+1][j+1]==-1||s[i+2][j+2]==-1||s[i+3][j+3]==-1||s[i+4][j+4]==-1)
+				continue;
+				w=5;
+				if (s[i][j]==1) w--;
+				if (s[i+1][j+1]==1) w--;
+				if (s[i+2][j+2]==1) w--;
+				if (s[i+3][j+3]==1) w--;
+				if (s[i+4][j+4]==1) w--;
+				if (s[i][j]==0)
+				{
+					if (f[i][j][3]>w) {f[i][j][3]=w;f[i][j][4]=1;}
+					if (f[i][j][3]==w) f[i][j][4]++;
+				}
+				if (s[i+1][j+1]==0)
+				{
+					if (f[i+1][j+1][3]>w) {f[i+1][j+1][3]=w;f[i+1][j+1][4]=1;}
+					if (f[i+1][j+1][3]==w) f[i+1][j+1][4]++;
+				}
+				if (s[i+2][j+2]==0)
+				{
+					if (f[i+2][j+2][3]>w) {f[i+2][j+2][3]=w;f[i+2][j+2][4]=1;}
+					if (f[i+2][j+2][3]==w) f[i+2][j+2][4]++;
+				}
+				if (s[i+3][j+3]==0)
+				{
+					if (f[i+3][j+3][3]>w) {f[i+3][j+3][3]=w;f[i+3][j+3][4]=1;}
+					if (f[i+3][j+3][3]==w) f[i+3][j+3][4]++;
+				}
+				if (s[i+4][j+4]==0)
+				{
+					if (f[i+4][j+4][3]>w) {f[i+4][j+4][3]=w;f[i+4][j+4][4]=1;}
+					if (f[i+4][j+4][3]==w) f[i+4][j+4][4]++;
+				}
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=20;j>=5;j--)
+			{
+				if (s[i][j]==-1||s[i+1][j-1]==-1||s[i+2][j-2]==-1||s[i+3][j-3]==-1||s[i+4][j-4]==-1)
+				continue;
+				w=5;
+				if (s[i][j]==1) w--;
+				if (s[i+1][j-1]==1) w--;
+				if (s[i+2][j-2]==1) w--;
+				if (s[i+3][j-3]==1) w--;
+				if (s[i+4][j-4]==1) w--;
+				if (s[i][j]==0)
+				{
+					if (f[i][j][3]>w) {f[i][j][3]=w;f[i][j][4]=1;}
+					if (f[i][j][3]==w) f[i][j][4]++;
+				}
+				if (s[i+1][j-1]==0)
+				{
+					if (f[i+1][j-1][3]>w) {f[i+1][j-1][3]=w;f[i+1][j-1][4]=1;}
+					if (f[i+1][j-1][3]==w) f[i+1][j-1][4]++;
+				}
+				if (s[i+2][j-2]==0)
+				{
+					if (f[i+2][j-2][3]>w) {f[i+2][j-2][3]=w;f[i+2][j-2][4]=1;}
+					if (f[i+2][j-2][3]==w) f[i+2][j-2][4]++;
+				}
+				if (s[i+3][j-3]==0)
+				{
+					if (f[i+3][j-3][3]>w) {f[i+3][j-3][3]=w;f[i+3][j-3][4]=1;}
+					if (f[i+3][j-3][3]==w) f[i+3][j-3][4]++;
+				}
+				if (s[i+4][j-4]==0)
+				{
+					if (f[i+4][j-4][3]>w) {f[i+4][j-4][3]=w;f[i+4][j-4][4]=1;}
+					if (f[i+4][j-4][3]==w) f[i+4][j-4][4]++;
+				}
+			}
+			Kp=0;Kq=0;
+			var r=Math.floor(Math.random()*4);
+			if (r==0)
+			{
+				for (var i=1;i<=20;i++)
+				for (var j=1;j<=20;j++)
+				if (which(f[i][j],f[Kp][Kq]))
+				{Kp=i;Kq=j;}
+			}
+			else if (r==1)
+			{
+				for (var i=1;i<=20;i++)
+				for (var j=20;j>=1;j--)
+				if (which(f[i][j],f[Kp][Kq]))
+				{Kp=i;Kq=j;}
+			}
+			else if (r==2)
+			{
+				for (var i=20;i>=1;i--)
+				for (var j=1;j<=20;j++)
+				if (which(f[i][j],f[Kp][Kq]))
+				{Kp=i;Kq=j;}
+			}
+			else
+			{
+				for (var i=20;i>=1;i--)
+				for (var j=20;j>=1;j--)
+				if (which(f[i][j],f[Kp][Kq]))
+				{Kp=i;Kq=j;}
+			}
+			s[Kp][Kq]=1;
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==-1||s[i][j+1]==-1||s[i][j+2]==-1||s[i][j+3]==-1||s[i][j+4]==-1)
+				continue;
+				if (s[i][j]==1&&s[i][j+1]==1&&s[i][j+2]==1&&s[i][j+3]==1&&s[i][j+4]==1)
+				flag=true;
+			}
+			for (var i=1;i<=20;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[j][i]==-1||s[j+1][i]==-1||s[j+2][i]==-1||s[j+3][i]==-1||s[j+4][i]==-1)
+				continue;
+				if (s[j][i]==1&&s[j+1][i]==1&&s[j+2][i]==1&&s[j+3][i]==1&&s[j+4][i]==1)
+				flag=true;
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=1;j<=16;j++)
+			{
+				if (s[i][j]==-1||s[i+1][j+1]==-1||s[i+2][j+2]==-1||s[i+3][j+3]==-1||s[i+4][j+4]==-1)
+				continue;
+				if (s[i][j]==1&&s[i+1][j+1]==1&&s[i+2][j+2]==1&&s[i+3][j+3]==1&&s[i+4][j+4]==1)
+				flag=true;
+			}
+			for (var i=1;i<=16;i++)
+			for (var j=20;j>=5;j--)
+			{
+				if (s[i][j]==-1||s[i+1][j-1]==-1||s[i+2][j-2]==-1||s[i+3][j-3]==-1||s[i+4][j-4]==-1)
+				continue;
+				if (s[i][j]==1&&s[i+1][j-1]==1&&s[i+2][j-2]==1&&s[i+3][j-3]==1&&s[i+4][j-4]==1)
+				flag=true;
+			}
+			if (flag)
+			{lose(true);return;}
+			draw();
+		}
+	</script>
+</html>

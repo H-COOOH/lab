@@ -1,0 +1,205 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<title>List</title>
+	</head>
+	<body onload="L()">
+		<h1>List</h1>
+		<button onclick="add(0)" style="width:150px;height:30px;">新建项目</button>
+		<button onclick="G(1)" id="G1" style="width:100px;height:30px;">启用管理</button>
+		<button onclick="G(0)" id="G0" style="width:100px;height:30px;display:none;">禁用管理</button>
+		<div id="main" style="zoom:120%;"></div>
+		<p><a href="/lab/index.html">返回</a></p>
+	</body>
+	<script>
+		var N,to,data,done,up,no,flag=false;
+		var itto,toit,itis;
+		function L()
+		{
+			var u=localStorage.listdata,i=0;
+			if (u==undefined)
+			{
+				u="0|";
+				localStorage.listdata=u;
+			}
+			for (;u[i]!="|"&&i<u.length;i++);
+			N=parseInt(u.substring(0,i));no=undefined;
+			to=new Array();data=new Array();done=new Array();
+			up=new Array();
+			for (var j=0;j<=N;j++)
+			{
+				to[j]=new Array();
+				to[j][0]=0;
+			}
+			for (var j=1;j<=N;j++)
+			{
+				i++;var last=i;
+				for (;u[i]!="Y"&&u[i]!="N"&&i<u.length;i++);
+				var pa=parseInt(u.substring(last,i));
+				to[pa][0]++;
+				to[pa][to[pa][0]]=j;
+				up[j]=pa;
+				done[j]=u[i]=="Y";
+			}
+			for (var j=1;j<=N;j++)
+			{
+				i++;var last=i;
+				for (;u[i]!="$"&&i<u.length;i++);
+				data[j]=u.substring(last,i);
+			}
+			document.getElementById("main").style.display="none";
+			document.getElementById("main").innerHTML=work(0);
+			var all=document.getElementsByTagName("li");
+			for (var i=0;i<all.length;i++)
+			{
+				all[i].id="n"+String(i+1);
+				if (done[i+1])
+				{
+					all[i].children[0].checked=true;
+					all[i].children[1].style.color="gold";
+				}
+				all[i].children[0].onchange=function(e){ed(parseInt(e.target.parentNode.id.substr(1)));}
+				all[i].children[3].onclick=function(e){edt(parseInt(e.target.parentNode.id.substr(1)));}
+				all[i].children[4].onclick=function(e){add(parseInt(e.target.parentNode.id.substr(1)));}
+				all[i].children[5].onclick=function(e){del(parseInt(e.target.parentNode.id.substr(1)));}
+				all[i].children[3].style.letterSpacing="2px";
+				all[i].children[4].style.letterSpacing="2px";
+				all[i].children[5].style.letterSpacing="2px";
+			}
+			show();
+			document.getElementById("main").style.display="block";
+		}
+		function work(at)
+		{
+			var re="";
+			if (to[at][0]==0)
+			{return "";}
+			for (var i=1;i<=to[at][0];i++)
+			{re+="<li><input type=\"checkbox\"><span>"+data[to[at][i]]+"</span><span>&emsp;</span><span>*</span><span>+</span><span>-</span>"+work(to[at][i])+"</li>";}
+			return "<ul>"+re+"</ul>";
+		}
+		function run(at)
+		{
+			itto[itis]=at;toit[at]=itis;
+			for (var i=1;i<=to[at][0];i++)
+			{
+				if (to[at][i]!=no)
+				{itis++;run(to[at][i]);}
+			}
+		}
+		function store()
+		{
+			itto=new Array();toit=new Array();
+			itis=0;
+			run(0);
+			var re=String(itis)+"|";
+			for (var i=1;i<=itis;i++)
+			{
+				re+=String(toit[up[itto[i]]]);
+				if (done[itto[i]])
+				{re+="Y";}
+				else
+				{re+="N";}
+			}
+			for (var i=1;i<=itis;i++)
+			{re+=data[itto[i]]+"$";}
+			localStorage.listdata=re;
+		}
+		function add(at)
+		{
+			var is=prompt("项目内容：");
+			if (is==null||is=="")
+			{return;}
+			N++;
+			to[at][0]++;
+			to[at][to[at][0]]=N;
+			to[N]=new Array();
+			to[N][0]=0;
+			up[N]=at;
+			data[N]=is;
+			done[N]=false;
+			store();
+			L();
+		}
+		function del(at)
+		{
+			var ok=confirm("确定删除?\n此操作也将删除子项目");
+			if (!ok) {return;}
+			no=at;
+			store();
+			L();
+		}
+		function ed(at)
+		{
+			done[at]=!done[at];
+			var re=String(N)+"|";
+			for (var i=1;i<=N;i++)
+			{
+				re+=String(up[i]);
+				if (done[i])
+				{re+="Y";}
+				else
+				{re+="N";}
+			}
+			for (var i=1;i<=N;i++)
+			{re+=data[i]+"$";}
+			localStorage.listdata=re;
+			L();
+		}
+		function edt(at)
+		{
+			var is=prompt("项目内容：",data[at]);
+			if (is!=null&&is!="")
+			{data[at]=is;}
+			var re=String(N)+"|";
+			for (var i=1;i<=N;i++)
+			{
+				re+=String(up[i]);
+				if (done[i])
+				{re+="Y";}
+				else
+				{re+="N";}
+			}
+			for (var i=1;i<=N;i++)
+			{re+=data[i]+"$";}
+			localStorage.listdata=re;
+			L();
+		}
+		function show()
+		{
+			var all=document.getElementsByTagName("li");
+			if (flag)
+			{
+				for (var i=0;i<all.length;i++)
+				{
+					for (var j=2;j<=5;j++)
+					{all[i].children[j].style.display="inline";}
+				}
+			}
+			else
+			{
+				for (var i=0;i<all.length;i++)
+				{
+					for (var j=2;j<=5;j++)
+					{all[i].children[j].style.display="none";}
+				}
+			}
+		}
+		function G(k)
+		{
+			if (k)
+			{
+				document.getElementById("G1").style.display="none";
+				document.getElementById("G0").style.display="inline";
+				flag=true;
+			}
+			else
+			{
+				document.getElementById("G0").style.display="none";
+				document.getElementById("G1").style.display="inline";
+				flag=false;
+			}
+			show();
+		}
+	</script>
+</html>

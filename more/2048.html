@@ -1,0 +1,387 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<title>2048</title>
+	</head>
+	<body onload="L()">
+		<h1>2048</h1>
+		<p>本局得分：<b id="mark"></b>/最高得分：<b id="high"></b>。&emsp;&emsp;<button onclick="last()" id="last" disabled>上一步</button></p>
+		<table style="zoom:200%;" border="1">
+			<tr>
+				<td><div id="c11"></div></td>
+				<td><div id="c12"></div></td>
+				<td><div id="c13"></div></td>
+				<td><div id="c14"></div></td>
+			</tr>
+			<tr>
+				<td><div id="c21"></div></td>
+				<td><div id="c22"></div></td>
+				<td><div id="c23"></div></td>
+				<td><div id="c24"></div></td>
+			</tr>
+			<tr>
+				<td><div id="c31"></div></td>
+				<td><div id="c32"></div></td>
+				<td><div id="c33"></div></td>
+				<td><div id="c34"></div></td>
+			</tr>
+			<tr>
+				<td><div id="c41"></div></td>
+				<td><div id="c42"></div></td>
+				<td><div id="c43"></div></td>
+				<td><div id="c44"></div></td>
+			</tr>
+		</table>
+		<p><a href="/lab/index.html">返回</a></p>
+	</body>
+	<style>
+		td>div
+		{
+			width:40px;
+			height:40px;
+			border:medium solid darkred;
+			text-align:center;
+			line-height:40px;
+		}
+		.s2
+		{background-color:cyan;}
+		.s4
+		{background-color:lime;}
+		.s8
+		{background-color:gold;}
+		.s16
+		{background-color:pink;}
+		.s32
+		{background-color:plum;}
+		.s64
+		{background-color:peru;}
+		.s128
+		{background-color:lightgreen;}
+		.s256
+		{background-color:lightblue;}
+		.s512
+		{background-color:lightcoral;}
+		.s1024
+		{background-color:chocolate;}
+		.s2048
+		{background-color:blue;}
+		.s4096
+		{background-color:indigo;}
+	</style>
+	<script>
+		var m=new Array(),n=new Array(),z=new Array(),is=new Array(),mark=0,lark,H=localStorage.max2048;
+		function L()
+		{
+			for (var i=0;i<=5;i++)
+			{
+				m[i]=new Array();
+				n[i]=new Array();
+				z[i]=new Array();
+				for (var j=0;j<=5;j++)
+				{
+					m[i][j]=0;
+					n[i][j]=0;
+					z[i][j]=0;
+				}
+			}
+			var p=rand(4),q=rand(4);
+			var _p=rand(4),_q=rand(4);
+			while(p==_p&&q==_q)
+			{_p=rand(4),_q=rand(4);}
+			if (Math.random()<0.9)
+			{m[p][q]=2;}
+			else
+			{m[p][q]=4;}
+			if (Math.random()<0.9)
+			{m[_p][_q]=2;}
+			else
+			{m[_p][_q]=4;}
+			if (H==undefined)
+			{H=0;}
+			document.getElementById("high").innerText=String(H);
+			draw();
+		}
+		function rand(k)
+		{return Math.floor(Math.random()*k)+1;}
+		document.onkeydown=function(e)
+		{
+			if (e.keyCode>=37&&e.keyCode<=40)
+			{done(e.keyCode-36);}
+		}
+		function draw()
+		{
+			document.getElementById("mark").innerText=String(mark);
+			for (var i=1;i<=4;i++)
+			{
+				for (var j=1;j<=4;j++)
+				{
+					var r=document.getElementById("c"+String(i)+String(j));
+					if (m[i][j])
+					{r.innerText=String(m[i][j]);}
+					else
+					{r.innerText="";}
+					r.className="s"+String(m[i][j]);
+				}
+			}
+		}
+		function goto(at)
+		{
+			if (at==1)
+			{
+				for (var i=1;i<=4;i++)
+				{
+					var o=0;
+					for (var j=1;j<=4;j++)
+					{
+						if (n[i][j]!=0)
+						{
+							o++;
+							if (j!=o)
+							{
+								n[i][o]=n[i][j];
+								n[i][j]=0;
+							}
+						}
+					}
+					is[i]=o;
+				}
+			}
+			if (at==2)
+			{
+				for (var i=1;i<=4;i++)
+				{
+					var o=0;
+					for (var j=1;j<=4;j++)
+					{
+						if (n[j][i]!=0)
+						{
+							o++;
+							if (j!=o)
+							{
+								n[o][i]=n[j][i];
+								n[j][i]=0;
+							}
+						}
+					}
+					is[i]=o;
+				}
+			}
+			if (at==3)
+			{
+				for (var i=1;i<=4;i++)
+				{
+					var o=5;
+					for (var j=4;j>=1;j--)
+					{
+						if (n[i][j]!=0)
+						{
+							o--;
+							if (j!=o)
+							{
+								n[i][o]=n[i][j];
+								n[i][j]=0;
+							}
+						}
+					}
+					is[i]=o;
+				}
+			}
+			if (at==4)
+			{
+				for (var i=1;i<=4;i++)
+				{
+					var o=5;
+					for (var j=4;j>=1;j--)
+					{
+						if (n[j][i]!=0)
+						{
+							o--;
+							if (j!=o)
+							{
+								n[o][i]=n[j][i];
+								n[j][i]=0;
+							}
+						}
+					}
+					is[i]=o;
+				}
+			}
+		}
+		function move(at,v)
+		{
+			for (var i=1;i<=4;i++)
+			{
+				for (var j=1;j<=4;j++)
+				{n[i][j]=m[i][j];}
+			}
+			if (at==1)
+			{
+				goto(1);
+				for (var i=1;i<=4;i++)
+				{
+					for (var j=1;j<=3;j++)
+					{
+						if (n[i][j]&&n[i][j]==n[i][j+1])
+						{
+							n[i][j]*=2;
+							if (v)
+							{mark+=n[i][j];}
+							n[i][j+1]=0;
+						}
+					}
+				}
+				goto(1);
+			}
+			if (at==2)
+			{
+				goto(2);
+				for (var i=1;i<=4;i++)
+				{
+					for (var j=1;j<=3;j++)
+					{
+						if (n[j][i]&&n[j][i]==n[j+1][i])
+						{
+							n[j][i]*=2;
+							if (v)
+							{mark+=n[j][i];}
+							n[j+1][i]=0;
+						}
+					}
+				}
+				goto(2);
+			}
+			if (at==3)
+			{
+				goto(3);
+				for (var i=1;i<=4;i++)
+				{
+					for (var j=4;j>=2;j--)
+					{
+						if (n[i][j]&&n[i][j]==n[i][j-1])
+						{
+							n[i][j]*=2;
+							if (v)
+							{mark+=n[i][j];}
+							n[i][j-1]=0;
+						}
+					}
+				}
+				goto(3);
+			}
+			if (at==4)
+			{
+				goto(4);
+				for (var i=1;i<=4;i++)
+				{
+					for (var j=4;j>=2;j--)
+					{
+						if (n[j][i]&&n[j][i]==n[j-1][i])
+						{
+							n[j][i]*=2;
+							if (v)
+							{mark+=n[j][i];}
+							n[j-1][i]=0;
+						}
+					}
+				}
+				goto(4);
+			}
+		}
+		function here(at)
+		{
+			var u;
+			if (at==1)
+			{
+				u=rand(4);
+				while(is[u]==4)
+				{u=rand(4);}
+				if (Math.random()<0.9)
+				{n[u][5-rand(4-is[u])]=2;}
+				else
+				{n[u][5-rand(4-is[u])]=4;}
+			}
+			if (at==2)
+			{
+				u=rand(4);
+				while(is[u]==4)
+				{u=rand(4);}
+				if (Math.random()<0.9)
+				{n[5-rand(4-is[u])][u]=2;}
+				else
+				{n[5-rand(4-is[u])][u]=4;}
+			}
+			if (at==3)
+			{
+				u=rand(4);
+				while(is[u]==1)
+				{u=rand(4);}
+				if (Math.random()<0.9)
+				{n[u][rand(is[u]-1)]=2;}
+				else
+				{n[u][rand(is[u]-1)]=4;}
+			}
+			if (at==4)
+			{
+				u=rand(4);
+				while(is[u]==1)
+				{u=rand(4);}
+				if (Math.random()<0.9)
+				{n[rand(is[u]-1)][u]=2;}
+				else
+				{n[rand(is[u]-1)][u]=4;}
+			}
+		}
+		function dead(at)
+		{
+			move(at,0);re=true;
+			for (var i=1;i<=4;i++)
+			{
+				for (var j=1;j<=4;j++)
+				{
+					if (m[i][j]!=n[i][j])
+					{re=false;}
+					n[i][j]=0;
+				}
+			}
+			return re;
+		}
+		function done(at)
+		{
+			if (dead(at))
+			{return;}
+			lark=mark;
+			move(at,1);
+			here(at);
+			for (var i=1;i<=4;i++)
+			{
+				for (var j=1;j<=4;j++)
+				{
+					z[i][j]=m[i][j];
+					m[i][j]=n[i][j];
+					n[i][j]=0;
+				}
+			}
+			draw();
+			document.getElementById("last").disabled=false;
+			if (dead(1)&&dead(2)&&dead(3)&&dead(4))
+			{
+				document.onkeydown="";
+				document.getElementById("last").disabled=true;
+				if (mark>H)
+				{localStorage.max2048=String(mark);}
+				alert("Game Over...");
+			}
+		}
+		function last()
+		{
+			document.getElementById("last").disabled=true;
+			for (var i=1;i<=4;i++)
+			{
+				for (var j=1;j<=4;j++)
+				{m[i][j]=z[i][j];}
+			}
+			mark=lark;
+			draw();
+		}
+	</script>
+</html>

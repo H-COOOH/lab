@@ -1,0 +1,89 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<title>安全性</title>
+	</head>
+	<body onload="L()">
+		<h1>安全性</h1>
+		<table border="1" style="zoom:120%;text-align:center;">
+			<tr>
+				<th>项目</th>
+				<th>设置加密</th>
+				<th>存有密码</th>
+			</tr>
+			<tr>
+				<td><a href='/beta/more/diary/index.html' target='_blank'>Diary</a></td>
+				<td id="e1"></td>
+				<td id="s1"></td>
+			</tr>
+			<tr>
+				<td><a href='/beta/more/notes/index.html' target='_blank'>Notes</a></td>
+				<td id="e2"></td>
+				<td id="s2"></td>
+			</tr>
+			<tr>
+				<td><a href='/beta/more/moods/index.html' target='_blank'>写心情+</a></td>
+				<td id="e3"></td>
+				<td id="s3"></td>
+			</tr>
+			<tr>
+				<td><a href='/beta/more/items/index.html' target='_blank'>备忘录+</a></td>
+				<td id="e4"></td>
+				<td id="s4"></td>
+			</tr>
+		</table>
+		<p><a onclick="L()" href="#">刷新</a>&emsp;<a href="/lab/index.html">返回</a></p>
+	</body>
+	<script>
+		function L()
+		{
+			if (localStorage.moodago==undefined)
+			if (localStorage.diaryago==undefined)
+			{document.getElementById("s1").innerText="否";}
+			else
+			{document.getElementById("s1").innerHTML="<a onclick='del(1)'><ins style='color:blue;'>删除</ins></a>";}
+			if (localStorage.dictago==undefined)
+			{document.getElementById("s2").innerText="否";}
+			else
+			{document.getElementById("s2").innerHTML="<a onclick='del(2)'><ins style='color:blue;'>删除</ins></a>";}
+			if (localStorage.moodsago==undefined)
+			{document.getElementById("s3").innerText="否";}
+			else
+			{document.getElementById("s3").innerHTML="<a onclick='del(3)'><ins style='color:blue;'>删除</ins></a>";}
+			if (localStorage.listsago==undefined)
+			{document.getElementById("s4").innerText="否";}
+			else
+			{document.getElementById("s4").innerHTML="<a onclick='del(4)'><ins style='color:blue;'>删除</ins></a>";}
+			if (localStorage.diarywith=="true")
+			{document.getElementById("e1").innerText="已加密";document.getElementById("s1").innerText="--";}
+			else
+			{document.getElementById("e1").innerHTML="<a href='/beta/more/diary/with.html' target='_blank' style='color:blue;'>加密</a>";}
+			if (localStorage.dictwith=="true")
+			{document.getElementById("e2").innerText="已加密";document.getElementById("s2").innerText="--";}
+			else
+			{document.getElementById("e2").innerHTML="<a href='/beta/more/notes/with.html' target='_blank' style='color:blue;'>加密</a>";}
+			if (localStorage.moodswith=="true")
+			{document.getElementById("e3").innerText="已加密";document.getElementById("s3").innerText="--";}
+			else
+			{document.getElementById("e3").innerHTML="<a href='/beta/more/moods/with.html' target='_blank' style='color:blue;'>加密</a>";}
+			if (localStorage.listswith=="true")
+			{document.getElementById("e4").innerText="已加密";document.getElementById("s4").innerText="--";}
+			else
+			{document.getElementById("e4").innerHTML="<a href='/beta/more/items/with.html' target='_blank' style='color:blue;'>加密</a>";}
+		}
+		function del(k)
+		{
+			var r=confirm("确定删除?");
+			if (!r) {return;}
+			if (k==1)
+			{localStorage.removeItem("diaryago");}
+			if (k==2)
+			{localStorage.removeItem("dictago");}
+			if (k==3)
+			{localStorage.removeItem("moodsago");}
+			if (k==4)
+			{localStorage.removeItem("listsago");}
+			L();
+		}
+	</script>
+</html>

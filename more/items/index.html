@@ -1,0 +1,333 @@
+<html>
+	<head>
+		<script src="/js/an.js" type="text/javascript"></script>
+		<title>备忘录+</title>
+	</head>
+	<body onload="L()">
+		<h1>备忘录+</h1>
+		<div id="help">
+			<div id="opt">
+				<button onclick="add(0)" style="width:150px;">添加</button>&emsp;&emsp;
+				<button onclick="F(1)" style="width:100px;">启用搜索</button><button onclick="F(0)" style="width:100px;display:none;">关闭搜索</button>&emsp;&emsp;
+				<button onclick="G(1)" style="width:100px;">启用编辑</button><button onclick="G(0)" style="width:100px;display:none;">关闭编辑</button>&emsp;&emsp;
+				<a href="./with.html">加密数据</a>&emsp;&emsp;<a href="/lab/index.html">返回</a><hr>
+			</div>
+			<div id="add" style="display:none;">
+				<h3>添加</h3>
+				<input placeholder="索引"><input placeholder="内容">
+				<button onclick="add(1)">保存</button><button onclick="add(2)">取消</button><hr>
+			</div>
+			<div id="loc" style="display:none;">
+				<h3>搜索</h3>
+				<input onkeydown="W()" placeholder="包含：">&emsp;<button onclick="H()">搜索</button>
+				<ul style="font-size:17px;"></ul><hr>
+			</div>
+			<ul id="main" style="font-size:17px;"></ul>
+			
+		</div>
+	</body>
+	<style>
+		input
+		{
+			width:180px;
+			height:30px;
+		}
+		button
+		{
+			width:45px;
+			height:30px;
+		}
+	</style>
+	<script>
+		var A,at,is,to,on=true,un=true;
+		var now=new Array(),howk=new Array(),howv=new Array();
+		function L()
+		{
+			if (localStorage.listswith=="true")
+			{
+				document.getElementById("help").style.display="none";
+				window.location.href="./need.html";
+				return;
+			}
+			A=0;at=new Array();is=new Array();
+			var ul=localStorage.listsdata;
+			if (ul==undefined)
+			{
+				ul="";
+				localStorage.listsdata="";
+			}
+			var uk="",uv="",uf=false;
+			for (var i=0;i<ul.length;i++)
+			{
+				if (ul[i]=="≠")
+				{
+					if (uf)
+					{
+						A++;
+						at[A]=uk;
+						is[A]=uv;
+						uk="";uv="";
+					}
+					uf=!uf;
+				}
+				else if (uf)
+				{uv=uv+ul[i];}
+				else
+				{uk=uk+ul[i];}
+			}
+			var code="";
+			for (var i=1;i<=A;i++)
+			{
+				var I=String(i);
+				code="<li class='ss' id='s"+I+"'><input /><input /><button onclick='R("+I+",0)'>查看</button><button onclick='R("+I+",1)'>隐藏</button><button onclick='R("+I+",2)'>复制</button><button onclick='R("+I+",3)'>编辑</button><button onclick='R("+I+",4)'>删除</button><button onclick='R("+I+",5)'>保存</button><button onclick='R("+I+",6)'>取消</button></li>"+code;
+			}
+			document.getElementById("main").innerHTML=code;
+			all=document.getElementsByClassName("ss");
+			if (on)
+			{
+				for (var i=1;i<=A;i++)
+				{now[i]=0;}
+				on=false;
+			}
+			for (var i=1;i<=A;i++)
+			{
+				show(all[A-i],now[i]);
+				if (now[i]!=2)
+				{
+					all[A-i].children[0].value=at[i];
+					all[A-i].children[1].value=is[i];
+				}
+				else
+				{
+					all[A-i].children[0].value=howk[i];
+					all[A-i].children[1].value=howv[i];
+				}
+			}
+		}
+		function show(K,b)
+		{
+			if (b==0)//正常
+			{
+				K.children[0].disabled=true;
+				K.children[1].disabled=true;
+				K.children[0].style.display="inline";
+				K.children[1].type="password";
+				K.children[2].style.display="inline";
+				K.children[3].style.display="none";
+				K.children[4].style.display="none";
+				K.children[5].style.display="inline";
+				K.children[6].style.display="inline";
+				K.children[7].style.display="none";
+				K.children[8].style.display="none";
+			}
+			if (b==1)//查看
+			{
+				K.children[0].disabled=true;
+				K.children[1].disabled=true;
+				K.children[0].style.display="inline";
+				K.children[1].type="text";
+				K.children[2].style.display="none";
+				K.children[3].style.display="inline";
+				K.children[4].style.display="inline";
+				K.children[5].style.display="inline";
+				K.children[6].style.display="inline";
+				K.children[7].style.display="none";
+				K.children[8].style.display="none";
+			}
+			if (b==2)//编辑
+			{
+				K.children[0].disabled=false;
+				K.children[1].disabled=false;
+				K.children[0].style.display="inline";
+				K.children[1].type="text";
+				K.children[2].style.display="none";
+				K.children[3].style.display="none";
+				K.children[4].style.display="none";
+				K.children[5].style.display="none";
+				K.children[6].style.display="none";
+				K.children[7].style.display="inline";
+				K.children[8].style.display="inline";
+			}
+			if (un)
+			{
+				K.children[5].style.display="none";
+				K.children[6].style.display="none";
+			}
+		}
+		function get()
+		{
+			all=document.getElementsByClassName("ss");
+			for (var i=1;i<=A;i++)
+			{
+				if (now[i]==2)
+				{
+					howk[i]=all[A-i].children[0].value;
+					howv[i]=all[A-i].children[1].value;
+				}
+			}
+		}
+		function add(b)
+		{
+			if (!b)
+			{
+				document.getElementById("opt").children[0].disabled=true;
+				document.getElementById("add").style.display="block";
+				return;
+			}
+			if (b==1)
+			{
+				var ak=document.getElementById("add").children[1].value;
+				var av=document.getElementById("add").children[2].value;
+				if (ak==""||av=="")
+				{return;}
+				localStorage.listsdata+=ak+"≠"+av+"≠";
+				now[A+1]=0;
+				get();L();
+			}
+			document.getElementById("add").children[1].value="";
+			document.getElementById("add").children[2].value="";
+			document.getElementById("add").style.display="none";
+			document.getElementById("opt").children[0].disabled=false;
+		}
+		function R(k,b)
+		{
+			K=document.getElementById("s"+String(k));
+			if (b==0)
+			{now[k]=1;show(K,1);}
+			else if (b==1)
+			{now[k]=0;show(K,0);}
+			else if (b==2)
+			{
+				K.children[1].disabled=false;
+				K.children[1].select();
+				document.execCommand("Copy");
+				K.children[1].disabled=true;
+			}
+			else if (b==3)
+			{now[k]=2;show(K,2);}
+			else if (b==4)
+			{
+				if (!confirm("确定删除?\n此操作无法恢复")) {return;}
+				var re="";
+				for (var i=1;i<=A;i++)
+				{
+					if (i!=k)
+					{re=re+at[i]+"≠"+is[i]+"≠";}
+				}
+				localStorage.listsdata=re;
+				get();
+				for (var i=k;i<A;i++)
+				{
+					now[i]=now[i+1];
+					howk[i]=howk[i+1];
+					howv[i]=howv[i+1];
+				}
+				L();
+			}
+			else if (b==5)
+			{
+				var ak=K.children[0].value;
+				var av=K.children[1].value;
+				if (ak==""||av=="")
+				{return;}
+				at[k]=ak;
+				is[k]=av;
+				var re="";
+				for (var i=1;i<=A;i++)
+				{re=re+at[i]+"≠"+is[i]+"≠";}
+				localStorage.listsdata=re;
+				now[k]=0;
+				show(K,0);
+			}
+			else if (b==6)
+			{
+				K.children[0].value=at[k];
+				K.children[1].value=is[k];
+				now[k]=0;
+				show(K,0);
+			}
+		}
+		function V(k,b)
+		{
+			K=document.getElementById("t"+String(k));
+			if (b==0)
+			{
+				K.children[1].type="text";
+				K.children[2].style.display="none";
+				K.children[3].style.display="inline";
+				K.children[4].style.display="inline";
+			}
+			else if (b==1)
+			{
+				K.children[1].type="password";
+				K.children[2].style.display="inline";
+				K.children[3].style.display="none";
+				K.children[4].style.display="none";
+			}
+			else if (b==2)
+			{
+				K.children[1].disabled=false;
+				K.children[1].select();
+				document.execCommand("Copy");
+				K.children[1].disabled=true;
+			}
+		}
+		function W()
+		{if (event.keyCode==13) {H();}}
+		function F(b)
+		{
+			if (b)
+			{
+				document.getElementById("opt").children[1].style.display="none";
+				document.getElementById("opt").children[2].style.display="inline";
+				document.getElementById("loc").style.display="block";
+				document.getElementById("loc").children[1].focus();
+			}
+			else
+			{
+				document.getElementById("loc").style.display="none";
+				document.getElementById("opt").children[2].style.display="none";
+				document.getElementById("opt").children[1].style.display="inline";
+				document.getElementById("loc").children[1].value="";
+				document.getElementById("loc").children[3].innerHTML="";
+			}
+		}
+		function G(b)
+		{
+			if (b)
+			{
+				document.getElementById("opt").children[3].style.display="none";
+				document.getElementById("opt").children[4].style.display="inline";
+				un=false;
+			}
+			else
+			{
+				for (var i=1;i<=A;i++)
+				{
+					if (now[i]==2)
+					{alert("仍有项目处在编辑状态");return;}
+				}
+				document.getElementById("opt").children[4].style.display="none";
+				document.getElementById("opt").children[3].style.display="inline";
+				un=true;
+			}
+			for (var i=1;i<=A;i++)
+			{show(all[A-i],now[i]);}
+		}
+		function H()
+		{
+			var re="",key=document.getElementById("loc").children[1].value;
+			if (key=="")
+			{document.getElementById("loc").children[3].innerHTML="";return;}
+			for (var i=1;i<=A;i++)
+			{
+				if (at[i].indexOf(key)==-1) {continue;}
+				I=String(i);
+				re="<li id='t"+I+"'><input value='"+at[i]+"' disabled/><input value='"+is[i]+"' type='password' disabled/><button onclick='V("+I+",0)'>查看</button><button onclick='V("+I+",1)' style='display:none;'>隐藏</button><button onclick='V("+I+",2)' style='display:none;'>复制</button></li>"+re;
+			}
+			if (re=="")
+			{re="<li style='color:red'>无搜索结果</li>";}
+			document.getElementById("loc").children[3].innerHTML=re;
+		}
+	</script>
+</html>
