@@ -1,0 +1,203 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<meta name="viewport" content="initial-scale=1,width=device-width">
+		<title>实验数据计算器</title>
+	</head>
+	<body onload="his()">
+		<h1>实验数据计算器</h1>
+		<div id="main" style="margin-left:1%;">
+			<p id="for">公式=<input oninput="chk()" placeholder="请输入公式："></p>
+			<ul id="par"></ul>
+			<p><button onclick="cal()" style="width:100px;">计算</button></p>
+			<p id="res" style="display:none;">结果=<b></b></p>
+			<details>
+				<summary>支持公式</summary>
+				<ul>
+					<li><b>E</b>：e</li>
+					<li><b>P</b>：π</li>
+					<li><b>S()</b>：sin()</li>
+					<li><b>C()</b>：cos()</li>
+					<li><b>T()</b>：tan()</li>
+					<li><b>L()</b>：log()</li>
+					<li><b>G()</b>：sqrt()</li>
+					<li><b>R()</b>：创建一个变量</li>
+				</ul>
+			</details>
+			<p><a href="./index.html">返回</a></p>
+		</div>
+		<div id="here" style="display:none;">
+			<ul style="font-size:17px;line-height:1.5;"></ul>
+			<button onclick="nope()" style="width:250px;height:30px;">返回</button>
+		</div>
+	</body>
+	<style>
+		ul {line-height:1.5;}
+		input {width:300px;height:30px;}
+		button {width:45px;height:30px;}
+		@media (max-width:500px)
+		{input {width:55%;height:30px;}}
+	</style>
+	<script>
+		"use strict"
+		const Pi=3.14159265359,Ei=2.71828182846;
+		var As=0,Ac=0,S=new Array(),C=new Array();
+		var ago=new Array(),now=new Array();
+		function nxt(c)
+		{return c==" "||c=="\n";}
+		function chk()
+		{
+			var add=document.getElementById("for").children[0].value;
+			localStorage['dawu_for']=add;
+			for (var i=0;i<add.length;i++)
+			{
+				if (add[i]=="R")
+				{
+					var j=i+2,r="";
+					while(j<add.length&&add[j]!=")") {r+=add[j];j++;}
+					now.push(parseInt(r));i=j;
+				}
+			}
+			now=now.filter((v,i,s)=>s.indexOf(v)==i);
+			for (var i=0;i<now.length;i++)
+			{
+				if (!ago.includes(now[i]))
+				{
+					var r=document.createElement("li");
+					r.innerHTML="R"+String(now[i])+"=<input id=\"r"+String(now[i])+"\">";
+					r.innerHTML+="&ensp;<button onclick='acq("+String(now[i])+")'>导入</button>&ensp;<button onclick='sav("+String(now[i])+")'>另存</button>";
+					document.getElementById("par").appendChild(r);
+				}
+			}
+			var h=document.getElementById("par");
+			for (var i=0;i<ago.length;i++)
+			{
+				if (!now.includes(ago[i]))
+				{h.removeChild(document.getElementById("r"+String(ago[i])).parentNode);}
+			}
+			ago=now;now=new Array();
+		}
+		function R(k)
+		{
+			var dat=document.getElementById("r"+String(k)).value+" ";
+			var m=0,n=0,f=false;
+			for (var i=0;i<dat.length;i++)
+			{
+				var u="";
+				while(nxt(dat[i]))
+				{i++;if (i==dat.length) {f=true;break;}}
+				if (f) {break;}
+				while(!nxt(dat[i]))
+				{u=u+dat[i];i++;}
+				m=m+parseFloat(u);n++;
+			}
+			return m/n;
+		}
+		function f(c)
+		{
+			if (c=="(") {return 0;}
+			if (c=="+"||c=="-") {return 1;}
+			if (c=="*"||c=="/")	{return 2;}
+			if (c=="^") {return 3;}
+			if (c=="S"||c=="C"||c=="T"||c=="L"||c=="G"||c=="R") {return 4;}
+			return -1;
+		}
+		function g()
+		{
+			var c=C[Ac];Ac--;
+			var m=S[As];As--;
+			if (c=="S") {As++;S[As]=Math.sin(m);}
+			if (c=="C") {As++;S[As]=Math.cos(m);}
+			if (c=="T") {As++;S[As]=Math.tan(m);}
+			if (c=="L") {As++;S[As]=Math.log(m);}
+			if (c=="G") {As++;S[As]=Math.sqrt(m);}
+			if (c=="R") {As++;S[As]=R(m);}
+			if (c=="S"||c=="C"||c=="T"||c=="L"||c=="G"||c=="R") {return;}
+			var n=S[As];As--;
+			if (c=="+") {As++;S[As]=n+m;}
+			if (c=="-") {As++;S[As]=n-m;}
+			if (c=="*") {As++;S[As]=n*m;}
+			if (c=="/") {As++;S[As]=n/m;}
+			if (c=="^") {As++;S[As]=Math.pow(n,m);}
+		}
+		function W()
+		{
+			var Q=document.getElementById("for").children[0].value;
+			if (!Q.length) return 0;
+			As=0;
+			var u=0,v=0,flag=false;
+			for (var i=0;i<Q.length;i++)
+			{
+				if (Q[i]=="P") {As++;S[As]=Pi;continue;}
+				if (Q[i]=="E") {As++;S[As]=Ei;continue;}
+				if (Q[i]>="0"&&Q[i]<="9")
+				{
+					if (v) {u+=parseInt(Q[i])/v;v*=10;}
+					else {u=u*10+parseInt(Q[i]);}
+					flag=true;continue;
+				}
+				if (Q[i]==".") {v=10;continue;}
+				if (flag) {As++;S[As]=u;u=0;v=0;flag=false;}
+				if (Q[i]=="("||!Ac) {Ac++;C[Ac]=Q[i];continue;}
+				if (Q[i]==")")
+				{while(C[Ac]!="(") {g();}Ac--;continue;}
+				while(Ac&&f(C[Ac])>=f(Q[i])) {g();}
+				Ac++;C[Ac]=Q[i];
+			}
+			if (flag) {As++;S[As]=u;}
+			while(Ac) {g();}
+			return S[As];
+		}
+		function his()
+		{
+			var h=localStorage["dawu_for"];
+			if (h==undefined)
+			{localStorage["dawu_for"]="";return}
+			document.getElementById("for").children[0].value=h;
+			chk();
+		}
+		function acq(k)
+		{
+			var dat=localStorage["dawu_dat"];
+			if (dat==undefined)
+			{localStorage["dawu_dat"]="";dat="";}
+			var a="",n=-1,u="";
+			for (var i=0;i<dat.length;i++)
+			{
+				if (dat[i]=="#")
+				{n++;a+="<li><input type='text' value='"+u+"' readonly>&ensp;<button onclick='go("+String(n)+","+String(k)+")'>选择</button></li>";u="";}
+				else
+				{u+=dat[i];}
+			}
+			document.getElementById("main").style.display="none";
+			document.getElementById("here").children[0].innerHTML=a;
+			document.getElementById("here").style.display="block";
+		}
+		function nope()
+		{
+			document.getElementById("here").style.display="none";
+			document.getElementById("main").style.display="block";
+		}
+		function go(to,k)
+		{
+			document.getElementById("r"+String(k)).value=document.getElementById("here").children[0].children[to].children[0].value;
+			nope();
+		}
+		function has(h)
+		{h.children[2].disabled=false;}
+		function sav(k)
+		{
+			var h=document.getElementById("r"+String(k)).parentNode;
+			localStorage["dawu_dat"]+=h.children[0].value+"#";
+			h.children[2].disabled=true;
+			setTimeout(has,1500,h);
+		}
+		function cal()
+		{
+			var h;try{h=W();} catch(e){h=NaN;}
+			if (isNaN(h)) {alert("存在错误！");return;}
+			document.getElementById("res").style.display="block";
+			document.getElementById("res").children[0].innerText=h.toFixed(10);
+		}
+	</script>
+</html>

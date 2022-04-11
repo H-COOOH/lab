@@ -1,0 +1,298 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<meta name="viewport" content="initial-scale=1,width=device-width">
+		<title>不确定度计算器</title>
+	</head>
+	<body>
+		<h1>不确定度计算器</h1>
+		<div id="main" style="margin-left:1%;">
+			<p>在此处&ensp;<button onclick="hide(0)">编辑</button>&ensp;您的实验数据。<span id="next" style="color:green;display:none;">&ensp;已完成</span></p>
+			<p>您也可以直接&ensp;<button onclick="into()">导入</button>&ensp;数据。</p>
+			<p>小数位数：<input type="number" id="para1" min="1"></p>
+			<p>最大允差：<input type="number" id="para2" step="any" min="0"></p>
+			<p>游标卡尺：<input type="checkbox" id="para3"></p>
+			<p>tp=<span id="para4">0</span>&ensp;<button onclick="cT()">选择</button></p>
+			<p>kp=<span id="para5">0</span>&ensp;<button onclick="cK()">选择</button></p>
+			<p><button onclick="main()" style="width:280px;height:30px;">生成</button></p>
+			<div id="done" style="display:none;">
+				<hr>
+				<textarea id="late" style="width:280px;height:200px;" readonly></textarea>
+				<p><button onclick="copy()" style="width:280px;height:30px;">复制</button></p>
+				<p style="color:red;">注意：您可能需要手动调整有效数字。</p>
+			</div>
+			<p><a href="./index.html">返回</a></p>
+		</div>
+		<div id="here" style="display:none;">
+			<ul style="font-size:17px;line-height:1.5;"></ul>
+			<button onclick="nope()" style="width:250px;height:30px;">返回</button>
+		</div>
+		<div id="tp" style="display:none;">
+			<h2>请选择所对应的tp：</h2>
+			<table border="1" style="zoom:110%;text-align:center;">
+				<tr>
+					<th>tp</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+				</tr>
+				<tr>
+					<td><strong>0.68</strong></td>
+					<td onclick="T(this)">1.32</td>
+					<td onclick="T(this)">1.20</td>
+					<td onclick="T(this)">1.14</td>
+					<td onclick="T(this)">1.11</td>
+					<td onclick="T(this)">1.09</td>
+					<td onclick="T(this)">1.08</td>
+					<td onclick="T(this)">1.07</td>
+					<td onclick="T(this)">1.06</td>
+				</tr>
+				<tr>
+					<td><strong>0.95</strong></td>
+					<td onclick="T(this)">4.30</td>
+					<td onclick="T(this)">3.18</td>
+					<td onclick="T(this)">2.78</td>
+					<td onclick="T(this)">2.57</td>
+					<td onclick="T(this)">2.46</td>
+					<td onclick="T(this)">2.37</td>
+					<td onclick="T(this)">2.31</td>
+					<td onclick="T(this)">2.26</td>
+				</tr>
+				<tr>
+					<td><strong>0.99</strong></td>
+					<td onclick="T(this)">9.93</td>
+					<td onclick="T(this)">5.84</td>
+					<td onclick="T(this)">4.60</td>
+					<td onclick="T(this)">4.03</td>
+					<td onclick="T(this)">3.71</td>
+					<td onclick="T(this)">3.50</td>
+					<td onclick="T(this)">3.36</td>
+					<td onclick="T(this)">3.25</td>
+				</tr>
+			</table>
+		</div>
+		<div id="kp" style="display:none;">
+			<h2>请选择所对应的kp：</h2>
+			<table border="1" style="zoom:110%;text-align:center;">
+				<tr>
+					<th>kp</th><th>0.683</th><th>0.950</th><th>0.955</th><th>0.997</th>
+				</tr>
+				<tr>
+					<td><strong>正态</strong></td>
+					<td onclick="K(this)">1.000</td>
+					<td onclick="K(this)">1.960</td>
+					<td onclick="K(this)">2.000</td>
+					<td onclick="K(this)">3.000</td>
+				</tr>
+				<tr>
+					<td><strong>均匀</strong></td>
+					<td onclick="K(this)">1.183</td>
+					<td onclick="K(this)">1.645</td>
+					<td onclick="K(this)">1.654</td>
+					<td onclick="K(this)">1.727</td>
+				</tr>
+			</table>
+		</div>
+		<textarea id="show" style="display:none;"></textarea>
+		<div id="read">
+			<div id="iner">
+				<h1 style="text-align:center;margin-top:3%;">请输入数据</h1>
+				<textarea id="hand" placeholder="包含变量的名称和单位及所得数据……"></textarea>
+				<div align="center" style="margin-top:4%;">
+					<button class="opt" onclick="hide(1)">确定</button>&emsp;&emsp;&emsp;
+					<button class="opt" onclick="hide(2)">取消</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<style>
+		#para1,#para2
+		{width:50px;height:25px;}
+		#para3
+		{zoom:120%;}
+		input[type="text"]
+		{width:200px;height:30px;}
+		button
+		{
+			width:46px;
+			height:30px;
+			font-size:15px;
+		}
+		#hand
+		{
+			width:80%;
+			height:60%;
+			font-size:15px;
+			display:block;
+			margin-top:3%;
+			margin-left:auto;
+			margin-right:auto;
+		}
+		#read
+		{
+			left:0;
+			top:0;
+			width:100%;
+			height:100%;
+			z-index:100;
+			opacity:0.9;
+			display:none;
+			position:absolute;
+			background-color:#09A7A1;
+		}
+		#iner
+		{
+			left:25%;
+			top:20%;
+			width:50%;
+			height:60%;
+			z-index:120;
+			position:absolute;
+			background-color:#FF790E;
+		}
+		.opt
+		{
+			width:15%;
+			height:10%;
+			zoom:120%;
+		}
+		@media (max-width:500px)
+		{
+			#iner
+			{
+				left:0 !important;
+				width:100% !important;
+			}
+		}
+	</style>
+	<script>
+		"use strict"
+		function hide(s)
+		{
+			if (!s)
+			{
+				document.getElementById("hand").value=document.getElementById("show").value;
+				document.getElementById("read").style.display="block";return;
+			}
+			if (s==1)
+			{
+				document.getElementById("show").value=document.getElementById("hand").value;
+				document.getElementById("next").style.display="inline";
+			}
+			document.getElementById("hand").value="";
+			document.getElementById("read").style.display="none";
+		}
+		function into()
+		{
+			var dat=localStorage["dawu_dat"];
+			if (dat==undefined)
+			{localStorage["dawu_dat"]="";dat="";}
+			var a="",n=-1,u="";
+			for (var i=0;i<dat.length;i++)
+			{
+				if (dat[i]=="#")
+				{n++;a+="<li><input type='text' value='"+u+"' readonly>&ensp;<button onclick='go("+String(n)+")'>选择</button></li>";u="";}
+				else
+				{u+=dat[i];}
+			}
+			document.getElementById("main").style.display="none";
+			document.getElementById("here").children[0].innerHTML=a;
+			document.getElementById("here").style.display="block";
+		}
+		function nope()
+		{
+			document.getElementById("here").style.display="none";
+			document.getElementById("main").style.display="block";
+		}
+		function go(to)
+		{
+			var r=document.getElementById("here").children[0].children[to].children[0].value;
+			var s=prompt("提供名称和单位：");
+			if (s!=null) {r=s+" "+r;}
+			document.getElementById("show").value=r;
+			document.getElementById("next").style.display="inline";
+			nope();
+		}
+		function cT()
+		{
+			document.getElementById("main").style.display="none";
+			document.getElementById("tp").style.display="block";
+		}
+		function cK()
+		{
+			document.getElementById("main").style.display="none";
+			document.getElementById("kp").style.display="block";
+		}
+		function T(e)
+		{
+			document.getElementById("para4").innerText=e.innerText;
+			document.getElementById("tp").style.display="none";
+			document.getElementById("main").style.display="block";
+		}
+		function K(e)
+		{
+			document.getElementById("para5").innerText=e.innerText;
+			document.getElementById("kp").style.display="none";
+			document.getElementById("main").style.display="block";
+		}
+		function copy()
+		{
+			document.getElementById("late").select();
+			document.execCommand("Copy");
+		}
+		function next(c)
+		{return c==" "||c=="\n";}
+		function calc()
+		{
+			var R=parseInt(document.getElementById("para1").value);
+			var d=parseFloat(document.getElementById("para2").value)
+			var C=document.getElementById("para3").checked;
+			var tp=parseFloat(document.getElementById("para4").innerText);
+			var kp=parseFloat(document.getElementById("para5").innerText);
+			var data=document.getElementById("show").value+" ";
+			var s="",w="",i=0,f=false,m=new Array(),n=new Array();
+			while(i<data.length&&!next(data[i]))
+			{s+=data[i];i++;}
+			while(i<data.length&&next(data[i]))
+			{i++;}
+			while(i<data.length&&!next(data[i]))
+			{w+=data[i];i++;}
+			while(i<data.length)
+			{
+				var u="";
+				while(i<data.length&&next(data[i]))
+				{
+					i++;
+					if (i==data.length)
+					{f=true;break;}
+				}
+				if (f) {break;}
+				while(i<data.length&&!next(data[i]))
+				{u=u+data[i];i++;}
+				m.push(u);
+				n.push(parseFloat(u))
+			}
+			var p=n.reduce((a,b)=>a+b,0)/n.length;
+			var q=Math.sqrt(n.reduce((a,b)=>a+(b-p)**2,0)/(n.length-1));
+			var t=q/(Math.sqrt(n.length));
+			var u=new Array();n.forEach(v=>u.push(v.toFixed(R)));
+			var r="&\\text{"+s+"的平均值：}\\\\\n&\\overline{"+s+"}=\\frac{\\sum "+s+"_i}{n}\\\\&=";
+			r=r+"\\frac{"+u.join("+")+"}{"+String(n.length)+"}\\quad "+w+"\\\\&="+p.toFixed(R+1)+"\\quad "+w+"\\\\\n";
+			r=r+"&\\text{"+s+"的标准差：}\\\\\n&\\sigma_"+s+"=\\sqrt{\\frac{\\sum ("+s+"_i-\\overline{"+s+"})^2}{n-1}}\\\\&=";
+			u=new Array();n.forEach(v=>u.push("("+v.toFixed(R)+"-"+p.toFixed(R+1)+")^2"));
+			r=r+"\\sqrt{\\frac{"+u.join("+")+"}{"+String(n.length)+"-1}}\\quad "+w+"\\\\&="+q.toFixed(R+1)+"\\quad "+w+"\\\\\n";
+			r=r+"&\\text{A类不确定度：}\\\\\n&u_{A"+s+"}=\\frac{\\sigma_"+s+"}{\\sqrt{n}}=\\frac{"+q.toFixed(R+1)+"}{\\sqrt{"+String(n.length)+"}}="+t.toFixed(R+1)+"\\quad "+w+"\\\\\n";
+			var c=C?"\\sqrt{3}":"3";p=d/(C?Math.sqrt(3):3);
+			r=r+"&\\text{B类不确定度：}\\\\\n&u_{B"+s+"}=\\frac{\\Delta_B}{C}=\\frac{"+String(d)+"}{"+c+"}="+p.toFixed(R+1)+"\\quad "+w+"\\\\\n";
+			q=Math.sqrt((tp*t)**2+(kp*p)**2);
+			r=r+"&\\text{故展伸不确定度：}\\\\\n&u_{"+s+"}=\\sqrt{(t_p*u_{A"+s+"})^2+(k_p*u_{B"+s+"})^2}=";
+			r=r+"\\sqrt{("+String(tp)+"*"+t.toFixed(R+1)+")^2+("+String(kp)+"*"+p.toFixed(R+1)+")^2}="+q.toFixed(R+1)+"\\quad "+w+"\\\\\n";
+			r=r+"&\\text{最终得到：}\\\\\n&"+s+"=\\overline{"+s+"}\\pm u_{"+s+"}=("+(n.reduce((a,b)=>a+b,0)/n.length).toFixed(R+1)+"\\pm"+q.toFixed(R+1)+")\\quad "+w+"\\quad(P=)\\\\";
+			return r;
+		}
+		function main()
+		{
+			var h;try{h=calc();} catch(e){h="NaN";}
+			if (h.indexOf("NaN")!=-1) {alert("存在错误！");return;}
+			document.getElementById("done").style.display="block";
+			document.getElementById("late").value=h;
+		}
+	</script>
+</html>

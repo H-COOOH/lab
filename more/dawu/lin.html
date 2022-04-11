@@ -1,0 +1,133 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<script src="./pic.js"></script>
+		<meta name="viewport" content="initial-scale=1,width=device-width">
+		<title>线性拟合计算器</title>
+	</head>
+	<body>
+		<h1>线性拟合计算器</h1>
+		<div id="main" style="margin-left:1%;">
+			<p>X轴数据：<input id="dx">&ensp;<button onclick="acq('dx')">导入</button></p>
+			<p>Y轴数据：<input id="dy">&ensp;<button onclick="acq('dy')">导入</button></p>
+			<p>X轴标题：<input id="tx"></p><p>Y轴标题：<input id="ty"></p><p>标题：<input id="tt"></p>
+			<p>小数位数：<input type="number" id="ds" style="width:40px;"></p>
+			<button onclick="main()" style="width:220px;">拟合</button>
+			<div id="res" style="display:none;">
+				<h2>结果</h2>
+				<div><p>K=<b></b></p><p>B=<b></b></p><p>R=<b></b></p></div><hr><br>
+				<div id="pic" style="width:300px;height:280px;"></div>
+			</div>
+			<p><a href="./index.html">返回</a></p>
+		</div>
+		<div id="here" style="display:none;">
+			<ul style="font-size:17px;line-height:1.5;"></ul>
+			<button onclick="nope()" style="width:200px;height:30px;">返回</button>
+		</div>
+	</body>
+	<style>
+		input {width:200px;height:30px;}
+		button {width:45px;height:30px;}
+		@media (max-width:500px)
+		{input {width:50%;height:30px;}}
+	</style>
+	<script>
+		"use strict"
+		function nxt(c)
+		{return c==" "||c=="\n";}
+		function acq(k)
+		{
+			var dat=localStorage["dawu_dat"];
+			if (dat==undefined)
+			{localStorage["dawu_dat"]="";dat="";}
+			var a="",n=-1,u="";
+			for (var i=0;i<dat.length;i++)
+			{
+				if (dat[i]=="#")
+				{n++;a+="<li><input type='text' value='"+u+"' readonly>&ensp;<button onclick=\"go("+String(n)+",\'"+k+"\')\">选择</button></li>";u="";}
+				else
+				{u+=dat[i];}
+			}
+			document.getElementById("main").style.display="none";
+			document.getElementById("here").children[0].innerHTML=a;
+			document.getElementById("here").style.display="block";
+		}
+		function nope()
+		{
+			document.getElementById("here").style.display="none";
+			document.getElementById("main").style.display="block";
+		}
+		function go(to,k)
+		{
+			document.getElementById(k).value=document.getElementById("here").children[0].children[to].children[0].value;
+			nope();
+		}
+		function R(k)
+		{
+			var dat=document.getElementById(k).value+" ";
+			var m=new Array(),f=false;
+			for (var i=0;i<dat.length;i++)
+			{
+				var u="";
+				while(nxt(dat[i]))
+				{i++;if (i==dat.length) {f=true;break;}}
+				if (f) {break;}
+				while(!nxt(dat[i]))
+				{u=u+dat[i];i++;}
+				m.push(parseFloat(u));
+			}
+			return m;
+		}
+		function work()
+		{
+			var u=R("dx"),v=R("dy"),L=0,w=new Array(),t=parseInt(document.getElementById("ds").value);
+			L=Math.max(u.length,v.length);
+			for (var i=u.length;i<L;i++) {u.push(0);}
+			for (var i=v.length;i<L;i++) {v.push(0);}
+			for (var i=0;i<L;i++) {w.push([u[i],v[i]]);}
+			var a=u.reduce((m,n)=>m+n,0)/L,b=v.reduce((m,n)=>m+n,0)/L,c=w.reduce((m,n)=>m+n[0]*n[1],0)/L;
+			var d=u.reduce((m,n)=>m+n*n,0)/L,e=v.reduce((m,n)=>m+n*n,0)/L,f=Math.min(...u),g=Math.max(...u);
+			var p=(c-a*b)/(d-a*a),q=b-p*a,r=(c-a*b)/Math.sqrt((d-a*a)*(e-b*b));
+			var s=document.getElementById("res").children[1];
+			s.children[0].children[0].innerText=p.toFixed(t);
+			s.children[1].children[0].innerText=q.toFixed(t);
+			s.children[2].children[0].innerText=r.toFixed(t);
+			echarts.dispose(document.getElementById("pic"));
+			var pic=echarts.init(document.getElementById("pic"));
+			var option=
+			{
+				title:{text:document.getElementById("tt").value,left:"center"},
+				xAxis:{
+					name:document.getElementById("tx").value,
+					nameLocation:"middle"
+				},
+				yAxis:{
+					name:document.getElementById("ty").value,
+					nameLocation:"middle"
+				},
+				series:[{
+					name:"data",
+					type:"scatter",
+					data:w,
+					markLine:{data:[[
+						{xAxis:f,yAxis:p*f+q,label:{
+							formatter:"y="+p.toFixed(t)+"*x+"+String(q.toFixed(t)),
+							position:"middle"
+						},symbol:"none"},
+						{xAxis:g,yAxis:p*g+q,symbol:"none"}
+					]]}
+				}],
+				animation:false
+			}
+			pic.setOption(option);
+			return isNaN(p+q+r);
+		}
+		function main()
+		{
+			document.getElementById("res").style.display="none";
+			var f;try{f=work()} catch(e){f=true;}
+			if (f) {alert("存在错误！");return;}
+			document.getElementById("res").style.display="block";
+		}
+	</script>
+</html>

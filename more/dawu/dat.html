@@ -1,0 +1,165 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<script src="/js/AES.js" type="text/javascript"></script>
+		<meta name="viewport" content="initial-scale=1,width=device-width">
+		<title>实验数据管理器</title>
+	</head>
+	<body onload="L()">
+		<h1>实验数据管理器</h1>
+		<div style="margin-left:1%;">
+			<div id="name">
+				<ul id="main" style="font-size:17px;line-height:1.5;"></ul>
+				<p><button onclick="add()" style="width:80px;">添加</button>&emsp;<button onclick="del()" style="width:80px;">删除</button>&emsp;<button onclick="get()" style="width:80px;">导出</button></p>
+				<div id="out" style="display:none;">
+					<hr><textarea style="width:280px;height:280px;" readonly></textarea>
+					<p><button onclick="copy()" style="width:130px;">复制</button>&emsp;<button onclick="done()" style="width:130px;">关闭</button></p>
+				</div>
+				<details id="more">
+					<summary>更多</summary>
+					<p><button style="color:blue;width:150px;" onclick="thr()">转移所有数据</button></p>
+					<p><button style="color:red;width:150px;" onclick="clr()">删除所有数据</button></p>
+				</details>
+			</div>
+			<div id="hide" style="display:none;">
+				<textarea id="data" style="width:280px;height:200px;"></textarea>
+				<p><button onclick="dai()" style="width:130px;">导入数据</button>&emsp;<button onclick="dao()" style="width:130px;">导出数据</button></p>
+				<p><button onclick="dr()" style="width:280px;">返回</button></p>
+			</div>
+			<p><a href="./index.html">返回</a></p>
+		</div>
+	</body>
+	<style>
+		button {width:45px;height:30px;}
+		input[type="checkbox"] {zoom:130%;}
+		input[type="text"] {width:200px;height:30px;}
+	</style>
+	<script>
+		"use strict"
+		function L()
+		{
+			var dat=localStorage["dawu_dat"];
+			if (dat==undefined)
+			{localStorage["dawu_dat"]="";dat="";}
+			var a="",u="";
+			for (var i=0;i<dat.length;i++)
+			{
+				if (dat[i]=="#")
+				{a+="<li><input type='checkbox'><input oninput='sav()' type='text' value='"+u+"'></li>";u="";}
+				else
+				{u+=dat[i];}
+			}
+			document.getElementById("main").innerHTML=a;
+		}
+		function nxt(c)
+		{return c==" "||c=="\n";}
+		function sav()
+		{
+			var h=document.getElementById("main").childNodes,a="";
+			for (var i=0;i<h.length;i++)
+			{a+=h[i].children[1].value+"#";}
+			localStorage["dawu_dat"]=a;
+		}
+		function add()
+		{
+			localStorage["dawu_dat"]+="#";
+			var h=document.createElement("li");
+			h.innerHTML="<input type='checkbox'><input oninput='sav()' type='text'>";
+			document.getElementById("main").appendChild(h);
+		}
+		function del()
+		{
+			var r=confirm("确定删除？\n此操作无法恢复");
+			if (!r) {return;}
+			var h=document.getElementById("main").childNodes,a="";
+			for (var i=h.length-1;i>=0;i--)
+			{
+				if (h[i].children[0].checked)
+				{h[i].parentNode.removeChild(h[i]);}
+			}
+			sav();
+		}
+		function toa(d)
+		{
+			var u="",v=new Array(),f=false;
+			for (var i=0;i<d.length;i++)
+			{
+				var u="";
+				while(nxt(d[i]))
+				{i++;if (i==d.length) {f=true;break;}}
+				if (f) {break;}
+				while(!nxt(d[i]))
+				{u=u+d[i];i++;}
+				v.push(u);
+			}
+			return v;
+		}
+		function get()
+		{
+			var m=new Array(),n=0,a="实验序号&";
+			var h=document.getElementById("main").childNodes;
+			for (var i=0;i<h.length;i++)
+			{
+				if (!h[i].children[0].checked) {continue;}
+				var t=toa(h[i].children[1].value+" ");
+				m.push(t);n=Math.max(n,t.length);
+				a+="项目名称&";
+			}
+			a=a.slice(0,-1)+"\\\\\n";
+			for (var i=0;i<n;i++)
+			{
+				a+=String(i+1)+"&";
+				for (var j=0;j<m.length;j++)
+				{a+=m[j][i]==undefined?"&":String(m[j][i])+"&";}
+				a=a.slice(0,-1)+"\\\\\n";
+			}
+			document.getElementById("out").children[1].value=a;
+			document.getElementById("out").style.display="block";
+		}
+		function copy()
+		{
+			document.getElementById("out").children[1].select();
+			document.execCommand("Copy");
+		}
+		function done()
+		{
+			document.getElementById("out").children[1].value="";
+			document.getElementById("out").style.display="none";
+		}
+		function thr()
+		{
+			document.getElementById("name").style.display="none";
+			document.getElementById("hide").style.display="block";
+		}
+		function dai()
+		{
+			var d=document.getElementById("data").value;
+			d=CryptoJS.AES.decrypt(d,"physics").toString(CryptoJS.enc.Utf8);
+			localStorage["dawu_dat"]=d;
+			alert("已完成");dr();L();
+		}
+		function dao()
+		{
+			var d=localStorage["dawu_dat"];
+			d=CryptoJS.AES.encrypt(d,"physics").toString();
+			document.getElementById("data").value=d;
+			document.getElementById("data").select();
+			document.execCommand("Copy");
+		}
+		function dr()
+		{
+			document.getElementById("data").value="";
+			document.getElementById("hide").style.display="none";
+			document.getElementById("name").style.display="block";
+			document.getElementById("more").open=false;
+		}
+		function clr()
+		{
+			var r=confirm("请确认此操作\n确定删除？\n此操作无法恢复");
+			if (!r) {return;}
+			localStorage.removeItem("dawu_for");
+			localStorage.removeItem("dawu_dat");
+			L();document.getElementById("more").open=false;
+		}
+	</script>
+</html>
