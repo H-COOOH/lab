@@ -1,4 +1,4 @@
-function O(to)
+function O(to,th)
 {
 	to=to+"\n";
 	var all=new Array(),u="";
@@ -48,12 +48,6 @@ function O(to)
 				if (ki=="r") {ui="<span style=\"color:red\">";}
 				if (ki=="g") {ui="<span style=\"color:green\">";}
 				if (ki=="b") {ui="<span style=\"color:blue\">";}
-				if (ki=="@")
-				{
-					var ux="";
-					for (j++;all[i][j]!="}"&&j<all[i].length;j++) {ux+=all[i][j];}
-					ru+=katex.renderToString(ux,{throwOnError:false});continue;
-				}
 				ru+=ui;
 			}
 			else if (all[i][j]=="}")
@@ -65,6 +59,12 @@ function O(to)
 				if (ki=="!") {ui="</ins>";}
 				if (ki=="r"||ki=="g"||ki=="b") {ui="</span>";}
 				ru+=ui;ki="";
+			}
+			else if (th&&all[i][j]=="$"&&j<all[i].length-1&&all[i][j+1]=="#")
+			{
+				var ux="";j+=2;
+				for (;all[i][j]!="#"&&j<all[i].length;j++) {ux+=all[i][j];}
+				ru+=katex.renderToString(ux,{throwOnError:false});
 			}
 			else if (all[i][j]=="\\") {j++;ru+=all[i][j];c++;}
 			else {ru+=all[i][j];c++;}
