@@ -18,7 +18,7 @@
 			<div id="done" style="display:none;">
 				<hr>
 				<textarea id="late" style="width:280px;height:200px;" readonly></textarea>
-				<p><button onclick="copy()" style="width:280px;height:30px;">复制</button></p>
+				<p><button onclick="copy()" style="width:150px;height:30px;">复制</button>&emsp;<button onclick="view()" style="width:110px;height:30px;">查看</button></p>
 				<p style="color:red;">注意：您可能需要手动调整有效数字。</p>
 			</div>
 			<p><a href="./index.html">返回</a></p>
@@ -236,6 +236,15 @@
 		{
 			document.getElementById("late").select();
 			document.execCommand("Copy");
+		}
+		function view()
+		{
+			var r=document.getElementById("late").value;
+			r=r.replaceAll("&","\n$#");
+			r=r.replaceAll("\\\\","#");
+			localStorage["dawu$不确定度"]=r;
+			sessionStorage.ntvname="dawu$不确定度";
+			window.open("../notes/view.html","_blank","popup");
 		}
 		function next(c)
 		{return c==" "||c=="\n";}
