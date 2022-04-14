@@ -11,6 +11,7 @@
 			<ul id="par"></ul>
 			<p><button onclick="cal()" style="width:100px;">计算</button></p>
 			<p id="res" style="display:none;">结果=<b></b></p>
+			<textarea id="who" oninput="wri()" style="width:280px;height:240px;font-size:15px;" placeholder="备注…"></textarea><br><br>
 			<details>
 				<summary>支持公式</summary>
 				<ul>
@@ -154,8 +155,14 @@
 			if (h==undefined)
 			{localStorage["dawu_for"]="";return}
 			document.getElementById("for").children[0].value=h;
+			h=localStorage["dawu_who"];
+			if (h==undefined)
+			{localStorage["dawu_who"]="";return}
+			document.getElementById("who").value=h;
 			chk();
 		}
+		function wri()
+		{localStorage["dawu_who"]=document.getElementById("who").value;}
 		function acq(k)
 		{
 			var dat=localStorage["dawu_dat"];

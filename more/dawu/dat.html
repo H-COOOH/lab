@@ -12,7 +12,7 @@
 				<ul id="main" style="font-size:17px;line-height:1.5;"></ul>
 				<p><button onclick="add()" style="width:80px;">添加</button>&emsp;<button onclick="del()" style="width:80px;">删除</button>&emsp;<button onclick="get()" style="width:80px;">导出</button></p>
 				<div id="out" style="display:none;">
-					<hr><textarea style="width:280px;height:280px;" readonly></textarea>
+					<hr><textarea style="width:280px;height:210px;" readonly></textarea>
 					<p><button onclick="copy()" style="width:130px;">复制</button>&emsp;<button onclick="done()" style="width:130px;">关闭</button></p>
 				</div>
 				<details id="more">
@@ -103,15 +103,16 @@
 				if (!h[i].children[0].checked) {continue;}
 				var t=toa(h[i].children[1].value+" ");
 				m.push(t);n=Math.max(n,t.length);
-				a+="项目名称&";
 			}
-			a=a.slice(0,-1)+"\\\\\n";
 			for (var i=0;i<n;i++)
+			{a+=String(i+1)+"&";}
+			a=a.slice(0,-1)+"\\\\";
+			for (var i=0;i<m.length;i++)
 			{
-				a+=String(i+1)+"&";
-				for (var j=0;j<m.length;j++)
-				{a+=m[j][i]==undefined?"&":String(m[j][i])+"&";}
-				a=a.slice(0,-1)+"\\\\\n";
+				a+="\n项目名称&";
+				for (var j=0;j<n;j++)
+				{a+=m[i][j]==undefined?"&":String(m[i][j])+"&";}
+				a=a.slice(0,-1)+"\\\\";
 			}
 			document.getElementById("out").children[1].value=a;
 			document.getElementById("out").style.display="block";
@@ -158,6 +159,7 @@
 			var r=confirm("请确认此操作\n确定删除？\n此操作无法恢复");
 			if (!r) {return;}
 			localStorage.removeItem("dawu_for");
+			localStorage.removeItem("dawu_who");
 			localStorage.removeItem("dawu_dat");
 			localStorage.removeItem("dawu$不确定度");
 			L();document.getElementById("more").open=false;
