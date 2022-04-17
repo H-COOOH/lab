@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<script src="/js/an.js"></script>
+		<script src="./cal.js"></script>
 		<script src="/js/AES.js" type="text/javascript"></script>
 		<meta name="viewport" content="initial-scale=1,width=device-width">
 		<title>实验数据管理器</title>
@@ -9,8 +10,9 @@
 		<h1>实验数据管理器</h1>
 		<div style="margin-left:1%;">
 			<div id="name">
-				<ul id="main" style="font-size:17px;line-height:1.5;"></ul>
-				<p><button onclick="add()" style="width:80px;">添加</button>&emsp;<button onclick="del()" style="width:80px;">删除</button>&emsp;<button onclick="get()" style="width:80px;">导出</button></p>
+				<ol id="main" style="font-size:17px;line-height:1.5;"></ol>
+				<p>新建：<input id="news" style="width:180px;height:30px;"><button onclick="nth()">清空</button></p>
+				<p><button onclick="run()" style="width:80px;">执行</button>&emsp;<button onclick="del()" style="width:80px;">删除</button>&emsp;<button onclick="get()" style="width:80px;">导出</button></p>
 				<div id="out" style="display:none;">
 					<hr><textarea style="width:280px;height:210px;" readonly></textarea>
 					<p><button onclick="copy()" style="width:130px;">复制</button>&emsp;<button onclick="done()" style="width:130px;">关闭</button></p>
@@ -36,6 +38,7 @@
 	</style>
 	<script>
 		"use strict"
+		var data=new Array(),at;
 		function L()
 		{
 			var dat=localStorage["dawu_dat"];
@@ -60,12 +63,69 @@
 			{a+=h[i].children[1].value+"#";}
 			localStorage["dawu_dat"]=a;
 		}
-		function add()
+		function nth()
+		{document.getElementById("news").value="";}
+		function add(v)
 		{
-			localStorage["dawu_dat"]+="#";
+			localStorage["dawu_dat"]+=v+"#";
 			var h=document.createElement("li");
-			h.innerHTML="<input type='checkbox'><input oninput='sav()' type='text'>";
+			h.innerHTML="<input type='checkbox'><input oninput='sav()' type='text' value='"+v+"'>";
 			document.getElementById("main").appendChild(h);
+		}
+		function R(k)
+		{return data[k][at]==undefined?0:data[k][at]}
+		function toa(d,f)
+		{
+			var u="",v=new Array(),f=false;
+			for (var i=0;i<d.length;i++)
+			{
+				var u="";
+				while(nxt(d[i]))
+				{i++;if (i==d.length) {f=true;break;}}
+				if (f) {break;}
+				while(!nxt(d[i]))
+				{u=u+d[i];i++;}
+				if (f) {v.push(u);}
+				else {v.push(parseFloat(u));}
+			}
+			return v;
+		}
+		function exc()
+		{
+			data=new Array();
+			var all=document.getElementById("main").childNodes;
+			for (var i=0;i<all.length;i++)
+			{data[i+1]=toa(all[i].children[1].value+" ",false);}
+			var wil=new Array();
+			var rul=document.getElementById("news").value;
+			for (var i=0;i<rul.length;i++)
+			{
+				if (rul[i]=="R")
+				{
+					var j=i+2,r="";
+					while(j<rul.length&&rul[j]!=")") {r+=rul[j];j++;}
+					wil.push(parseInt(r));i=j;
+				}
+			}
+			var N=0,L=0,re="";
+			for (var i=0;i<wil.length;i++)
+			{
+				L=Math.max(L,data[wil[i]].length);
+				for (var j=0;j<data[wil[i]].length;j++)
+				{
+					var tmp=String(data[wil[i]][j]).split(".")[1];
+					N=Math.max(N,tmp==undefined?0:tmp.length);
+				}
+			}
+			for (var i=0;i<L;i++)
+			{at=i;re+=W(rul).toFixed(N+1)+" ";}
+			return re.slice(0,-1);
+		}
+		function run()
+		{
+			var h;try{h=exc();} catch(e){h="NaN";}
+			if (h.indexOf("NaN")!=-1) {alert("存在错误！");return;}
+			add(h);
 		}
 		function del()
 		{
@@ -79,40 +139,25 @@
 			}
 			sav();
 		}
-		function toa(d)
-		{
-			var u="",v=new Array(),f=false;
-			for (var i=0;i<d.length;i++)
-			{
-				var u="";
-				while(nxt(d[i]))
-				{i++;if (i==d.length) {f=true;break;}}
-				if (f) {break;}
-				while(!nxt(d[i]))
-				{u=u+d[i];i++;}
-				v.push(u);
-			}
-			return v;
-		}
 		function get()
 		{
-			var m=new Array(),n=0,a="实验序号&";
+			var m=new Array(),n=0,a="\\hline\n实验序号&";
 			var h=document.getElementById("main").childNodes;
 			for (var i=0;i<h.length;i++)
 			{
 				if (!h[i].children[0].checked) {continue;}
-				var t=toa(h[i].children[1].value+" ");
+				var t=toa(h[i].children[1].value+" ",true);
 				m.push(t);n=Math.max(n,t.length);
 			}
 			for (var i=0;i<n;i++)
 			{a+=String(i+1)+"&";}
-			a=a.slice(0,-1)+"\\\\";
+			a=a.slice(0,-1)+"\\\\\n\\hline";
 			for (var i=0;i<m.length;i++)
 			{
 				a+="\n项目名称&";
 				for (var j=0;j<n;j++)
 				{a+=m[i][j]==undefined?"&":String(m[i][j])+"&";}
-				a=a.slice(0,-1)+"\\\\";
+				a=a.slice(0,-1)+"\\\\\n\\hline";
 			}
 			document.getElementById("out").children[1].value=a;
 			document.getElementById("out").style.display="block";
