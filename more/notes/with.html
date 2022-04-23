@@ -77,11 +77,10 @@
 			function S()
 			{
 				var k=document.getElementById("key").value;
+				if (k=="")
+				{alert("请输入密码!");return;}
 				if (k!=document.getElementById("Key").value)
-				{
-					alert("密码不一致!");
-					return;
-				}
+				{alert("密码不一致!");return;}
 				if (document.getElementById("D").checked)
 				{k=ago;}
 				var s=get();
