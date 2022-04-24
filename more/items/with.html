@@ -50,12 +50,12 @@
 			function S()
 			{
 				var k=document.getElementById("key").value;
-				if (k=="")
-				{alert("请输入密码!");return;}
 				if (k!=document.getElementById("Key").value)
 				{alert("密码不一致!");return;}
 				if (document.getElementById("D").checked)
 				{k=ago;}
+				if (k=="")
+				{alert("请输入密码!");return;}
 				var s=localStorage.listsdata;
 				localStorage.listsmd5=md5(s);
 				s=CryptoJS.AES.encrypt(s,k).toString();

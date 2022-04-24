@@ -76,12 +76,12 @@
 			function S()
 			{
 				var k=document.getElementById("key").value;
-				if (k=="")
-				{alert("请输入密码!");return;}
 				if (k!=document.getElementById("Key").value)
 				{alert("密码不一致!");return;}
 				if (document.getElementById("D").checked)
 				{k=ago;}
+				if (k=="")
+				{alert("请输入密码!");return;}
 				var s=get();
 				if (s==null)
 				{alert("操作失败\n分隔符\"∅\"被占用");return;}
