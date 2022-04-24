@@ -24,6 +24,13 @@
 		<script>
 			function L()
 			{
+				var show=localStorage.dictshow;
+				if (show!=undefined)
+				{
+					var add=document.createElement("style");
+					add.innerText="#main{"+show.replaceAll(";"," !important;")+"}";
+				}
+				document.body.appendChild(add);
 				var name=sessionStorage.ntvname;
 				var main=localStorage.getItem(name);
 				document.getElementById("name").innerText=name.substr(name.indexOf("$")+1);

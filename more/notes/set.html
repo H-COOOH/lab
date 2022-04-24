@@ -7,6 +7,12 @@
 		<h1>Notes-设置</h1>
 		<div id="help" style="margin-left:10px;">
 			<details>
+				<summary><b>设置样式</b></summary>
+				<p>您在此处设置的样式优先级高于默认的样式。</p>
+				<textarea id="show" placeholder="CSS：" oninput="save()"></textarea>
+			</details>
+			<br>
+			<details>
 				<summary><b>搜索笔记</b></summary>
 				<p>
 					<input id="word" onkeydown=G() style="width:250px;height:35px" placeholder="包含：">
@@ -23,6 +29,8 @@
 		<p><a href="./index.html">返回</a></p>
 	</body>
 	<style>
+		#show
+		{width:333px;height:150px;font-size:16px;}
 		b
 		{font-size:17px;}
 		th,td
@@ -42,6 +50,7 @@
 				window.location.href="./need.html";
 				return;
 			}
+			document.getElementById("show").value=localStorage.dictshow==undefined?"":localStorage.dictshow;
 			var u=localStorage.dictlist,i=0;
 			path=new Array(),note=new Array(),done=new Array(),A=0;
 			var code="<tr><th>上移</th><th>下移</th><th>名称</th><th>路径</th><th>归档</th></tr>";
@@ -97,6 +106,8 @@
 			localStorage.dictlist=now;
 			L();
 		}
+		function save()
+		{localStorage.dictshow=document.getElementById("show").value;}
 		function G()
 		{if (event.keyCode==13) {find();}}
 	</script>

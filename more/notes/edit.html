@@ -90,6 +90,13 @@
 			var Mi=document.getElementById("main"),Ni=document.getElementById("see");
 			function L()
 			{
+				var show=localStorage.dictshow;
+				if (show!=undefined)
+				{
+					var add=document.createElement("style");
+					add.innerText="#see{"+show.replaceAll(";"," !important;")+"}";
+				}
+				document.body.appendChild(add);
 				name=sessionStorage.ntename;
 				document.getElementById("name").innerText=name.substr(name.indexOf("$")+1);
 				var main=localStorage.getItem(name);
