@@ -125,28 +125,30 @@
 				document.getElementById("main").style.display="none";
 				window.location.href="./need.html";return;
 			}
-			data=new Array()
+			data=new Array();
 			var all=localStorage["treedata"];
 			if (all==undefined)
 			{localStorage["treedata"]="";all="";}
-			var cf=false,ct="",cs="";
+			var cf=0,ct="",cs="",cw="",news="",code="";;
+			var now=parseInt(new Date().getTime()/864e5);
 			for (var i=0;i<all.length;i++)
 			{
 				if (all[i]=="≠")
 				{
-					if (cf)
+					if (cf==2)
 					{
-						data.push([ct,cs]);
-						cf=false;ct="";cs="";
+						if (now-parseInt(cw)<100)
+						{data.push([ct,cs]);news+=ct+"≠"+cs+"≠"+cw+"≠";}
+						cf=0;ct="";cs="";cw="";
 					}
-					else {cf=true}
+					else {cf++;}
 				}
-				else if (cf) {cs+=all[i];}
-				else {ct+=all[i];}
+				else if (!cf) {ct+=all[i];}
+				else if (cf==1) {cs+=all[i];}
+				else {cw+=all[i];}
 			}
-			var code="";
-			for (var i=0;i<data.length;i++)
-			{code+=img(i);}
+			localStorage["treedata"]=news;
+			for (var i=0;i<data.length;i++) {code+=img(i);}
 			document.getElementById("main").innerHTML+=code;
 		}
 		function block(e,t)
@@ -163,7 +165,8 @@
 		{
 			var ut=value("t0"),us=value("v0");
 			if (ut==""||us=="") {return;}
-			localStorage["treedata"]+=ut+"≠"+us+"≠";data.push([ut,us]);
+			var uw=parseInt(new Date().getTime()/864e5);
+			localStorage["treedata"]+=ut+"≠"+us+"≠"+uw+"≠";data.push([ut,us]);
 			document.getElementById("main").innerHTML+=img(data.length-1);
 			nop();
 		}
