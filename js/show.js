@@ -66,7 +66,11 @@ function O(to,th)
 				for (;all[i][j]!="#"&&j<all[i].length;j++) {ux+=all[i][j];}
 				ru+=katex.renderToString(ux,{throwOnError:false});
 			}
-			else if (all[i][j]=="\\") {j++;ru+=all[i][j];c++;}
+			else if (all[i][j]=="\\")
+			{
+				if (j<all[i].length-1)
+				{j++;ru+=all[i][j];c++;}
+			}
 			else {ru+=all[i][j];c++;}
 		}
 		uf=flag[flag.length-1];
