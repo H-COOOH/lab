@@ -31,58 +31,57 @@
 				<td id="e4"></td>
 				<td id="s4"></td>
 			</tr>
+			<tr>
+				<td><a href='/lab/more/tree/index.html' target='_blank'>三叶草园</a></td>
+				<td id="e5"></td>
+				<td id="s5"></td>
+			</tr>
 		</table>
 		<p><a onclick="L()" href="#">刷新</a>&emsp;<a href="/lab/index.html">返回</a></p>
 	</body>
 	<script>
+		function set(e)
+		{return document.getElementById(e);}
+		function to(k,b)
+		{
+			if (k==1) {set("s"+String(b)).innerText="否";}
+			if (k==2) {return `<a onclick='del(${b})'><ins style='color:blue;'>删除</ins></a>`;}
+			if (k==3) {set("e"+String(b)).innerText="已加密";set("s"+String(b)).innerText="--";}
+			if (k==4) {return `<a href='/lab/more/${b}/with.html' target='_blank' style='color:blue;'>加密</a>`;}
+		}
 		function L()
 		{
-			if (localStorage.moodago==undefined)
-			if (localStorage.diaryago==undefined)
-			{document.getElementById("s1").innerText="否";}
-			else
-			{document.getElementById("s1").innerHTML="<a onclick='del(1)'><ins style='color:blue;'>删除</ins></a>";}
-			if (localStorage.dictago==undefined)
-			{document.getElementById("s2").innerText="否";}
-			else
-			{document.getElementById("s2").innerHTML="<a onclick='del(2)'><ins style='color:blue;'>删除</ins></a>";}
-			if (localStorage.moodsago==undefined)
-			{document.getElementById("s3").innerText="否";}
-			else
-			{document.getElementById("s3").innerHTML="<a onclick='del(3)'><ins style='color:blue;'>删除</ins></a>";}
-			if (localStorage.listsago==undefined)
-			{document.getElementById("s4").innerText="否";}
-			else
-			{document.getElementById("s4").innerHTML="<a onclick='del(4)'><ins style='color:blue;'>删除</ins></a>";}
-			if (localStorage.diarywith=="true")
-			{document.getElementById("e1").innerText="已加密";document.getElementById("s1").innerText="--";}
-			else
-			{document.getElementById("e1").innerHTML="<a href='/lab/more/diary/with.html' target='_blank' style='color:blue;'>加密</a>";}
-			if (localStorage.dictwith=="true")
-			{document.getElementById("e2").innerText="已加密";document.getElementById("s2").innerText="--";}
-			else
-			{document.getElementById("e2").innerHTML="<a href='/lab/more/notes/with.html' target='_blank' style='color:blue;'>加密</a>";}
-			if (localStorage.moodswith=="true")
-			{document.getElementById("e3").innerText="已加密";document.getElementById("s3").innerText="--";}
-			else
-			{document.getElementById("e3").innerHTML="<a href='/lab/more/moods/with.html' target='_blank' style='color:blue;'>加密</a>";}
-			if (localStorage.listswith=="true")
-			{document.getElementById("e4").innerText="已加密";document.getElementById("s4").innerText="--";}
-			else
-			{document.getElementById("e4").innerHTML="<a href='/lab/more/items/with.html' target='_blank' style='color:blue;'>加密</a>";}
+			if (localStorage.diaryago==undefined) {to(1,1);}
+			else {set("s1").innerHTML=to(2,1);}
+			if (localStorage.dictago==undefined) {to(1,2);}
+			else {set("s2").innerHTML=to(2,2);}
+			if (localStorage.moodsago==undefined) {to(1,3);}
+			else {set("s3").innerHTML=to(2,3);}
+			if (localStorage.listsago==undefined) {to(1,4);}
+			else {set("s4").innerHTML=to(2,4);}
+			if (localStorage.treeago==undefined) {to(1,5);}
+			else {set("s5").innerHTML=to(2,5);}
+			
+			if (localStorage.diarywith=="true") {to(3,1);}
+			else {set("e1").innerHTML=to(4,"diary");}
+			if (localStorage.dictwith=="true") {to(3,2);}
+			else {set("e2").innerHTML=to(4,"notes");}
+			if (localStorage.moodswith=="true") {to(3,3);}
+			else {set("e3").innerHTML=to(4,"moods");}
+			if (localStorage.listswith=="true") {to(3,4);}
+			else {set("e4").innerHTML=to(4,"items");}
+			if (localStorage.treewith=="true") {to(3,5);}
+			else {set("e5").innerHTML=to(4,"tree");}
 		}
 		function del(k)
 		{
 			var r=confirm("确定删除?");
 			if (!r) {return;}
-			if (k==1)
-			{localStorage.removeItem("diaryago");}
-			if (k==2)
-			{localStorage.removeItem("dictago");}
-			if (k==3)
-			{localStorage.removeItem("moodsago");}
-			if (k==4)
-			{localStorage.removeItem("listsago");}
+			if (k==1) {localStorage.removeItem("diaryago");}
+			if (k==2) {localStorage.removeItem("dictago");}
+			if (k==3) {localStorage.removeItem("moodsago");}
+			if (k==4) {localStorage.removeItem("listsago");}
+			if (k==5) {localStorage.removeItem("treeago");}
 			L();
 		}
 	</script>
