@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<script src="/js/an.js" type="text/javascript"></script>
+		<title>选择单词</title>
+	</head>
+	<body onload=L()>
+		<h1>选择单词</h1>
+		<span>直接输入</span>
+		<span>From</span><input type="number" id="Fi" style="height:30px;width:50px">
+		<span>To</span><input type="number" id="Ti" style="height:30px;width:50px">
+		&emsp;<button onclick=S() style="height:30px;width:80px">确定</button>
+		<br><br><span>或选择错误率不小于</span><input type="number" id="th" style="height:30px;width:40px"><span>%的单词</span>
+		&emsp;<button onclick=C() style="height:30px;width:80px">确定</button>
+		<br><br><span>或选中并点击</span>
+		<button onclick=D() style="height:30px;width:100px">选择完成</button>
+		<font size="4"><ol id="all"></ol></font>
+		<script>
+			var c=0,Al="";
+			function a(m,n,e)
+			{
+				if (e=="NaN")
+				{e="--"}
+				var sc="w"+String(c);
+				Al+="<li id=\""+sc+"\"><input type=\"radio\" name=\"wdexm\"><input type=\"radio\" name=\"wdexn\">&emsp;<span>"+m+"</span>&emsp;<span>"+n+"</span>&emsp;<i>"+e+"</i></li>";
+			}
+			function L()
+			{
+				c=0;Al="";
+				var f=0,um="",un="",ue0="",ue1="";
+				var us=localStorage.wrddata;
+				if (us==undefined)
+				{
+					localStorage.wrddata="";
+					return;
+				}
+				for (var i=0;i<us.length;i++)
+				{
+					if (us[i]=="=")
+					{f=1;}
+					else if (us[i]=="$")
+					{f=2;}
+					else if (f==2&&us[i]=="/")
+					{f=3;}
+					else if (us[i]=="#")
+					{
+						c++;
+						a(um,un,String(parseInt(100*parseInt(ue0)/parseInt(ue1))));
+						f=0;
+						um="";
+						un="";
+						ue0="";
+						ue1="";
+					}
+					else if (f==0)
+					{um+=us[i];}
+					else if (f==1)
+					{un+=us[i];}
+					else if (f==2)
+					{ue0+=us[i];}
+					else if (f==3)
+					{ue1+=us[i];}
+				}
+				document.getElementById("all").innerHTML=Al;
+				document.getElementById("w1").children[0].checked=true;
+				document.getElementById("w"+String(c)).children[1].checked=true;
+			}
+			function S()
+			{
+				var um=document.getElementById("Fi").value;
+				var un=document.getElementById("Ti").value;
+				if (um>0&&un>0&&um<=c&&un<=c)
+				{
+					document.getElementById("w"+String(um)).children[0].checked=true;
+					document.getElementById("w"+String(un)).children[1].checked=true;
+					D();
+				}
+				else
+				{alert("范围无效~");}
+			}
+			function D()
+			{
+				var um=c,un=0;
+				for (var i=1;i<=c;i++)
+				{
+					if (document.getElementById("w"+String(i)).children[0].checked)
+					{um=i;}
+					if (document.getElementById("w"+String(i)).children[1].checked)
+					{un=i;}
+				}
+				if (um>un)
+				{
+					alert("选择范围无效");
+					return;
+				}
+				var us="";
+				for (var i=um;i<=un;i++)
+				{us+=document.getElementById("w"+String(i)).children[2].innerText+"="+document.getElementById("w"+String(i)).children[3].innerText+"$";}
+				localStorage.wexdata=us;
+				alert("选择成功!");
+				window.location.href="./index.html";
+			}
+			function C()
+			{
+				if (document.getElementById("th").value=="")
+				{document.getElementById("th").value="0";}
+				var than=Number(document.getElementById("th").value);
+				var us="";
+				for (var i=1;i<=c;i++)
+				{
+					if (Number(document.getElementById("w"+String(i)).children[4].innerText)>=than)
+					{us+=document.getElementById("w"+String(i)).children[2].innerText+"="+document.getElementById("w"+String(i)).children[3].innerText+"$";}
+				}
+				localStorage.wexdata=us;
+				alert("选择成功!");
+				window.location.href="./index.html";
+			}
+		</script>
+	</body>
+</html>

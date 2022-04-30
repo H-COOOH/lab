@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<script src="/js/an.js" type="text/javascript"></script>
+		<title>节律计算</title>
+	</head>
+	<body>
+		<h1>节律计算</h1>
+		<h2>原理</h2>
+		<blockquote>自出生之日起，人的情绪、体力、智力等心理、生理状况就呈周期变化。
+		根据心理学家的统计，人体节律分为体力节律、情绪节律和智力节律三种，这些节律的时间周期分别为23天、28天、33天，每个节律周期又分为高潮期、临界日和低潮期三个阶段，以上三个节律周期的半数为临界日。
+		这就是说11.5天、14天、16.5 天分别为体力节律、情绪节律和智力节律的临界日。临界日的前半期为高潮期，后半期为低潮期，生日前一天是起始位置(平衡位置)。</blockquote>
+		<i style="float:right;margin-inline-end:50px">————来源:数学必修四课本</i>
+		<h2>计算</h2>
+		<span>您的生日是:</span><input id="from" type="date"><br><br>
+		<span>查询日期为:</span><input id="to" type="date"><br><br>
+		<button onclick=R() style="width:100px;height:30px">计算</button>
+		<h2>结果</h2>
+		<ul id="show" style="display:none">
+			<li><span>您的体力节律指数为:</span><strong id="ux"></strong></li>
+			<li><span>您的情绪节律指数为:</span><strong id="uy"></strong></li>
+			<li><span>您的智力节律指数为:</span><strong id="uz"></strong></li>
+			<li><span>注:最大为1，最小为-1。</span></li>
+		</ul>
+		<p><a href="/lab/index.html">返回</a></p>
+		<script>
+			function R()
+			{
+				var the=new Date(document.getElementById("from").value);
+				var now=new Date(document.getElementById("to").value);
+				var go=parseInt((now.getTime()-the.getTime())/86400000)+1;
+				if (isNaN(go))
+				{
+					alert("请输入有效的日期~");
+					return;
+				}
+				document.getElementById("ux").innerText=String(parseInt(Math.sin(2*Math.PI*go/23)*1000+0.5)/1000);
+				document.getElementById("uy").innerText=String(parseInt(Math.sin(2*Math.PI*go/28)*1000+0.5)/1000);
+				document.getElementById("uz").innerText=String(parseInt(Math.sin(2*Math.PI*go/33)*1000+0.5)/1000);
+				document.getElementById("show").style.display="block";
+			}
+		</script>
+	</body>
+</html>

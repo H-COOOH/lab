@@ -1,0 +1,126 @@
+<html>
+	<head>
+		<script src="/js/an.js" type="text/javascript"></script>
+		<title>查看单词</title>
+	</head>
+	<body onload=L()>
+		<h1>查看单词</h1>
+		<div style="zoom:150%;margin-left:2%;">
+			<strong>查看：</strong>
+			<select id="sort" onchange="S()">
+				<option value="0">顺序</option>
+				<option value="1">乱序</option>
+			</select>
+			<select id="word" onchange="T()">
+				<option value="0">不隐藏</option>
+				<option value="1">仅中文</option>
+				<option value="2">仅英文</option>
+			</select>
+		</div>
+		<font size="4" style="line-height:1.5;"><ul id="all"></ul></font>
+		<script>
+			var Al="",mC=new Array(),mE=new Array(),nC=new Array(),nE=new Array(),A=0;
+			function L()
+			{
+				var f=0,um="",un="";
+				var us=localStorage.wexdata;
+				for (var i=0;i<us.length;i++)
+				{
+					if (us[i]=="=")
+					{f=1;}
+					else if (us[i]=="$")
+					{
+						A++;mC[A]=um;mE[A]=un;nC[A]=um;nE[A]=un;
+						f=0;
+						um="";
+						un="";
+					}
+					else if (f==0)
+					{um+=us[i];}
+					else
+					{un+=us[i];}
+				}
+				S();
+			}
+			function S()
+			{
+				Al="";
+				if (document.getElementById("sort").options[document.getElementById("sort").selectedIndex].value=="0")
+				{
+					for (var i=1;i<=A;i++)
+					{Al+="<li><input type=\"checkbox\" style=\"zoom:125%\"><span>&emsp;"+mC[i]+"</span><span>&emsp;"+mE[i]+"</span><span>&emsp;</span><button onclick=H("+i+") style=\"display:none\">提示</button></li>";}
+				}
+				else
+				{
+					for (var i=1;i<=A;i++)
+					{
+						var to=Math.floor(Math.random()*A+1);
+						var use=nC[i];nC[i]=nC[to];nC[to]=use;use=nE[i];nE[i]=nE[to];nE[to]=use;
+					}
+					for (var i=1;i<=A;i++)
+					{Al+="<li><input type=\"checkbox\" style=\"zoom:125%\"><span>&emsp;"+nC[i]+"</span><span>&emsp;"+nE[i]+"</span><span>&emsp;</span><button onclick=H("+i+") style=\"display:none\">提示</button></li>";}
+				}
+				document.getElementById("all").innerHTML=Al;
+				T();
+			}
+			function v(f)
+			{
+				if (f)
+				{return document.getElementById("sort").options[document.getElementById("sort").selectedIndex].value;}
+				else
+				{return document.getElementById("word").options[document.getElementById("word").selectedIndex].value;}
+			}
+			function H(u)
+			{
+				if (v(true)=="0")
+				{
+					if (v(false)=="1")
+					{alert(mE[u]);}
+					else
+					{alert(mC[u]);}
+				}
+				else
+				{
+					if (v(false)=="1")
+					{alert(nE[u]);}
+					else
+					{alert(nC[u]);}
+				}
+			}
+			function T()
+			{
+				var all=document.getElementsByTagName("li");
+				if (v(false)=="0")
+				{
+					for (var i=0;i<all.length;i++)
+					{
+						all[i].children[1].style.display="inline";
+						all[i].children[2].style.display="inline";
+						all[i].children[3].style.display="none";
+						all[i].children[4].style.display="none";
+					}
+				}
+				else if (v(false)=="1")
+				{
+					for (var i=0;i<all.length;i++)
+					{
+						all[i].children[1].style.display="inline";
+						all[i].children[2].style.display="none";
+						all[i].children[3].style.display="inline";
+						all[i].children[4].style.display="inline";
+					}
+				}
+				else
+				{
+					for (var i=0;i<all.length;i++)
+					{
+						all[i].children[1].style.display="none";
+						all[i].children[2].style.display="inline";
+						all[i].children[3].style.display="inline";
+						all[i].children[4].style.display="inline";
+					}
+				}
+			}
+		</script>
+	</body>
+</html>

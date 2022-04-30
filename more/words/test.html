@@ -1,0 +1,165 @@
+<html>
+	<head>
+		<script src="/js/an.js" type="text/javascript"></script>
+		<title>测试单词</title>
+	</head>
+	<body>
+		<h1>测试单词</h1>
+		<div id="Ts">
+			<button onclick=S() style="height:50px;width:200px">开始测试</button>
+		</div>
+		<div id="Tt" style="display:none">
+			<p id="number" style="font-size:15px"></p>
+			<p id="problem" style="color:blue;font-size:20px"></p>
+			<input type="text" id="answer" style="height:45px;width:300px;font-size:20px" onkeydown=G()>&emsp;
+			<button onclick=D() id="handin" style="height:45px;width:80px">确定</button>
+		</div>
+		<div id="Te" style="display:none">
+			<h3 id="main"></h3>
+			<div id="error">
+				<h3>以下是本次测试中错误的单词:</h3>
+				<textarea id="erwd" disabled></textarea>
+			</div>
+			<div id="error">
+				<h3>以下是本次测试的详情:</h3>
+				<div id="pap"></div>
+			</div>
+		</div>
+		<script>
+			var L=0,data=new Array(),C=1;
+			var datam=new Array(),datan=new Array(),dataa=new Array();
+			function T(f)
+			{
+				document.getElementById("number").innerText="#"+String(f)+"/"+String(L);
+				document.getElementById("problem").innerText=datam[f];
+				document.getElementById("answer").focus();
+			}
+			function R()
+			{
+				document.getElementById("Tt").style.display="none";
+				var ac=0;
+				for (var i=1;i<=L;i++)
+				{
+					if (dataa[i]==datan[i])
+					{ac++;}
+				}
+				document.getElementById("main").innerText="本次共测试"+String(L)+"个单词，正确率"+String(Math.floor(100*ac/L))+"%.";
+				var erwd="",eror=new Array(),tror=new Array();
+				for (var i=1;i<=L;i++)
+				{
+					if (dataa[i]!=datan[i])
+					{erwd+=datam[i]+"|"+datan[i]+"\n";eror[datam[i]+"="+datan[i]]=true;}
+					else
+					{tror[datam[i]+"="+datan[i]]=true;}
+				}
+				var f=0,um="",un="",ue0="",ue1="",ud="";
+				var us=localStorage.wrddata;
+				for (var i=0;i<us.length;i++)
+				{
+					if (us[i]=="=")
+					{f=1;}
+					else if (us[i]=="$")
+					{f=2;}
+					else if (f==2&&us[i]=="/")
+					{f=3;}
+					else if (us[i]=="#")
+					{
+						if (eror[um+"="+un])
+						{ud+=um+"="+un+"$"+String(parseInt(ue0)+1)+"/"+String(parseInt(ue1)+1)+"#";}
+						else if (tror[um+"="+un])
+						{ud+=um+"="+un+"$"+ue0+"/"+String(parseInt(ue1)+1)+"#";}
+						else
+						{ud+=um+"="+un+"$"+ue0+"/"+ue1+"#";}
+						f=0;
+						um="";
+						un="";
+						ue0="";
+						ue1="";
+					}
+					else if (f==0)
+					{um+=us[i];}
+					else if (f==1)
+					{un+=us[i];}
+					else if (f==2)
+					{ue0+=us[i];}
+					else if (f==3)
+					{ue1+=us[i];}
+				}
+				localStorage.wrddata=ud;
+				if (localStorage.werdata==undefined)
+				{localStorage.werdata="";}
+				localStorage.werdata+=erwd+"#";
+				document.getElementById("erwd").value=erwd;
+				var pap="<font size=\"4\">";
+				for (var i=1;i<=L;i++)
+				{
+					pap+="<span>"+datam[i]+"</span><br><input value=\""+dataa[i]+"\" style=\"height:40px;width:120px;font-size:16px\" disabled>&emsp;";
+					if (dataa[i]==datan[i])
+					{pap+="<span style=\"color:green\">A</span><br><br>";}
+					else
+					{pap+="<span style=\"color:red\">X</span><br>";pap+="<span style=\"color:blue\">"+datan[i]+"</span><br><br>";}
+				}
+				pap+="</font>";
+				document.getElementById("pap").innerHTML=pap;
+				document.getElementById("Te").style.display="block";
+			}
+			function D()
+			{
+				dataa[C]=document.getElementById("answer").value;
+				document.getElementById("answer").value="";
+				if (C==L)
+				{
+					R();
+					return;
+				}
+				C++;
+				T(C);
+			}
+			function S()
+			{
+				document.getElementById("Ts").style.display="none";
+				var ud="";
+				var us=localStorage.wexdata;
+				for (var i=0;i<us.length;i++)
+				{
+					if (us[i]=="$")
+					{
+						L++;
+						data[L]=ud;
+						ud="";
+					}
+					else
+					{ud+=us[i];}
+				}
+				for (var i=1;i<=L;i++)
+				{
+					var to=Math.floor(Math.random()*L+1);
+					var use=data[i];
+					data[i]=data[to];
+					data[to]=use;
+				}
+				for (var i=1;i<=L;i++)
+				{
+					datam[i]="";datan[i]="";
+					var f=0;
+					for (var j=0;j<data[i].length;j++)
+					{
+						if (data[i][j]=="=")
+						{f=1;}
+						else if (f)
+						{datan[i]+=data[i][j];}
+						else
+						{datam[i]+=data[i][j];}
+					}
+				}
+				document.getElementById("Tt").style.display="block";
+				T(1);
+			}
+			function G()
+			{
+				if (event.keyCode==13)
+				{document.getElementById("handin").click();}
+			}
+		</script>
+	</body>
+</html>
