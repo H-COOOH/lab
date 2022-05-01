@@ -7,7 +7,8 @@
 		<div id="main">
 			<h1>三叶草园</h1>
 			<a href="./with.html" style="left:2%;">加密</a>
-			<a href="/lab/index.html" style="left:6%;">返回</a>
+			<a href="./more.html" style="left:5%;">更多</a>
+			<a href="/lab/index.html" style="left:8%;">返回</a>
 		</div>
 		<div id="rite" class="info">
 			<div>
@@ -48,8 +49,10 @@
 		}
 		#main>h1
 		{
+			z-index:2;
 			color:lime;
 			margin-top:3%;
+			position:relative;
 			text-align:center;
 		}
 		#main>img
@@ -131,13 +134,14 @@
 			if (all==undefined)
 			{localStorage["treedata"]="";all="";}
 			var cf=0,ct="",cs="",cw="",code="";
+			var ud=new Date().getTime();
 			for (var i=0;i<all.length;i++)
 			{
 				if (all[i]=="≠")
 				{
 					if (cf==2)
 					{
-						if (Math.random()<1/(1+Math.sqrt((new Date().getTime()-parseInt(cw))/864e5)))
+						if (Math.random()<1/(1+Math.sqrt((ud-parseInt(cw))/864e5)))
 						{data.push([ct,cs,cw]);}
 						cf=0;ct="";cs="";cw="";
 					}

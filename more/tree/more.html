@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<title>三叶草园-更多</title>
+	</head>
+	<body onload="load()">
+		<h1>三叶草园-更多</h1>
+		<div id="main">
+			<h2>统计数据</h2>
+			<div id="numb">
+				<p style="font-size:17px;">三叶草的总共数量：<b></b></p>
+				<p style="font-size:17px;">三叶草的平均数量：<b></b></p>
+			</div><hr>
+			<p>各topic的总数排序：</p>
+			<details>
+				<summary>查看</summary>
+				<br><table id="dict" border="1" style="font-size:17px;text-align:center;"></table>
+			</details><br><hr>
+			<p style="color:red;">删除数据：</p>
+			<details>
+				<summary>更多</summary>
+				<br><button onclick="zero()" style="color:red;width:100px;height:32px;">删除所有数据</button>
+			</details><br><hr>
+			<p><a href="/lab/more/tree/index.html">返回</a></p>
+		</div>
+	</body>
+	<script>
+		function load()
+		{
+			if (localStorage.treewith=="true")
+			{
+				document.getElementById("main").style.display="none";
+				window.location.href="./need.html";return;
+			}
+			var data=new Array(),numb=0,dict={};
+			var all=localStorage["treedata"];
+			if (all==undefined)
+			{localStorage["treedata"]="";all="";}
+			var cf=0,ct="",cs="",cw="";
+			var ud=new Date().getTime();
+			for (var i=0;i<all.length;i++)
+			{
+				if (all[i]=="≠")
+				{
+					if (cf==2)
+					{
+						data.push([ct,cs,cw]);
+						cf=0;ct="";cs="";cw="";
+					}
+					else {cf++;}
+				}
+				else if (!cf) {ct+=all[i];}
+				else if (cf==1) {cs+=all[i];}
+				else {cw+=all[i];}
+			}
+			for (var i=0;i<data.length;i++)
+			{
+				numb+=1/(1+Math.sqrt((ud-parseInt(data[i][2]))/864e5));
+				dict[data[i][0]]=dict[data[i][0]]==undefined?1:dict[data[i][0]]+1;
+			}
+			var temp=new Array();
+			for (var u in dict) {temp.push([u,dict[u]]);}
+			temp.sort((m,n)=>n[1]-m[1]);
+			var code="<tr><th>topic</th><th>times</th></tr>";
+			for (var i=0;i<temp.length;i++)
+			{code+=`<tr><td>${temp[i][0]}</td><td>${temp[i][1]}</td></tr>`;}
+			var un=document.getElementById("numb");
+			un.children[0].children[0].innerText=String(data.length);
+			un.children[1].children[0].innerText=numb.toFixed(3);
+			document.getElementById("dict").innerHTML=code;
+		}
+		function zero()
+		{
+			if (!confirm("确定删除所有数据?\n注意:此操作不可恢复!")) {return;}
+			localStorage.removeItem("treedata");
+			document.getElementById("main").style.display="none";
+			window.location.href="./index.html";
+		}
+	</script>
+</html>
