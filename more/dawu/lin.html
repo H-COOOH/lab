@@ -17,6 +17,8 @@
 				<h2>结果</h2>
 				<div><p>K=<b></b></p><p>B=<b></b></p><p>R=<b></b></p></div><hr><br>
 				<div id="pic" style="width:300px;height:280px;"></div>
+				<textarea id="late" style="width:280px;height:200px;" readonly></textarea>
+				<p><button onclick="copy()" style="width:150px;height:30px;">复制</button>&emsp;<button onclick="view()" style="width:110px;height:30px;">查看</button></p>
 			</div>
 			<p><a href="./index.html">返回</a></p>
 		</div>
@@ -81,6 +83,7 @@
 		function work()
 		{
 			var u=R("dx"),v=R("dy"),L=0,w=new Array(),t=parseInt(document.getElementById("ds").value);
+			const tp=[-1,-1,12.71,4.30,3.18,2.78,2.57,2.45,2.36,2.31,2.26,2.23,2.20,2.18,2.16,2.14,2.13,2.12,2.11,2.10,2.09,2.09];
 			L=Math.max(u.length,v.length);
 			for (var i=u.length;i<L;i++) {u.push(0);}
 			for (var i=v.length;i<L;i++) {v.push(0);}
@@ -92,6 +95,10 @@
 			s.children[0].children[0].innerText=p.toFixed(t);
 			s.children[1].children[0].innerText=q.toFixed(t);
 			s.children[2].children[0].innerText=r.toFixed(t);
+			var X="&k=\\frac{\\overline{xy}-\\overline{x}\\cdot\\overline{y}}{\\overline{x^2}-\\overline{x}^2}="+p.toFixed(t+1)+"\\\\\n&b=\\overline{y}-k\\overline{x}="+q.toFixed(t+1)+"\\\\\n&r=\\frac{\\overline{xy}-\\overline{x}\\cdot\\overline{y}}{\\sqrt{[\\overline{x^2}-(\\overline{x})^2][\\overline{y^2}-(\\overline{y})^2]}}="+r.toFixed(t+1)+"\\\\\n";
+			var x=Math.sqrt((1/r/r-1)/(L-2))*p*tp[L];
+			X+="&\\text{故展伸不确定度：}\\\\\n&u_k=\\sqrt{\\frac{1/r^2-1}{n-2}}kt_p="+x.toFixed(t)+"\\\\\n&\\text{最终得到：}\\\\\n&k=("+p.toFixed(t)+"\\pm"+x.toFixed(t)+")\\quad(P=0.95)\\\\";
+			document.getElementById("late").value=X;
 			echarts.dispose(document.getElementById("pic"));
 			var pic=echarts.init(document.getElementById("pic"));
 			var option=
@@ -128,6 +135,20 @@
 			var f;try{f=work()} catch(e){f=true;}
 			if (f) {alert("存在错误！");return;}
 			document.getElementById("res").style.display="block";
+		}
+		function copy()
+		{
+			document.getElementById("late").select();
+			document.execCommand("Copy");
+		}
+		function view()
+		{
+			var r=document.getElementById("late").value;
+			r=r.replaceAll("&","\n$#");
+			r=r.replaceAll("\\\\","#");
+			localStorage["dawu$不确定度"]=r;
+			sessionStorage.ntvname="dawu$不确定度";
+			window.open("../notes/view.html","_blank","popup");
 		}
 	</script>
 </html>
