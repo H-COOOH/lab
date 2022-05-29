@@ -1,0 +1,219 @@
+<html>
+	<head>
+		<script src="/js/an.js"></script>
+		<meta name="viewport" content="initial-scale=1,width=device-width">
+		<title>Quiz</title>
+	</head>
+	<body>
+		<h1>Quiz</h1>
+		<div id="sel">
+			<h2>请选择文件</h2>
+			<p><input type="file" accept=".dat" id="csv" style="zoom:120%;"></p>
+			<p><button class="next" onclick="sel()">继续</button></p>
+		</div>
+		<div id="main" style="display:none;">
+			<h2>请选择操作</h2>
+			<p><button class="next" onclick="ran()">测试答题</button></p>
+			<p><button class="next" onclick="rev()">查看错题</button></p>
+		</div>
+		<div id="ran" style="display:none;">
+			<h2>请选择范围</h2>
+			<p>起始序号：<input type="number" id="to"></p>
+			<p id="tip"></p>
+			<p><button class="next" onclick="go()">答题</button></p>
+		</div>
+		<div id="his" style="display:none;">
+			<h2>测试答题</h2>
+			<p><b>题号：</b><span id="num"></span></p>
+			<p><b>题型：</b><span id="typ"></span></p>
+			<p><b>题目：</b><span id="pro"></span></p>
+			<div id="opt">
+				<p onclick="did(0)"></p>
+				<p onclick="did(1)"></p>
+				<p onclick="did(2)"></p>
+				<p onclick="did(3)"></p>
+			</div>
+			<p id="t1"><button class="next" onclick="may(1)">提交</button></p>
+			<p id="t2" style="color:red;"></p>
+			<p id="t0" style="display:none;"><button class="next" onclick="may(0)">确定</button></p>
+			<p><button class="next" onclick="if(confirm('Sure?')){H('his');S('main');}">返回</button></p>
+		</div>
+		<div id="rev" style="display:none;">
+			<h2>查看错题</h2>
+			<p><button class="next" onclick="her()">测试错题</button></p>
+			<p><button class="next" onclick="H('rev');S('main');">返回</button></p>
+			<div id="her"></div>
+		</div>
+		<p><a href="/lab/index.html">返回</a></p>
+	</body>
+	<style>
+		.next
+		{
+			width:200px;
+			height:30px;
+		}
+		input[type=number]
+		{
+			width:60px;
+			height:30px;
+		}
+	</style>
+	<script>
+		const ops=["A","B","C","D"];
+		var all=0,now=0,tmp=[false,false,false,false],ed=false,no=false,nxt,err,errs;
+		var typ=new Array(),pro=new Array(),sol=new Array(),num=new Array(),opt=new Array();
+		function H(u) {document.getElementById(u).style.display="none";}
+		function S(u) {document.getElementById(u).style.display="block";}
+		function sel()
+		{
+			var on=document.getElementById("csv").files;
+			if (!on.length) {return;} all=0;
+			var am=new FileReader();am.readAsText(on[0]);
+			var at=0,use="",arr=[];
+			am.onload=function()
+			{
+				is=this.result;
+				for (var i=0;i<is.length;i++)
+				{
+					if (is[i]==",")
+					{
+						if (at==0) {typ.push(use);}
+						if (at==1) {pro.push(use);}
+						if (at==2) {sol.push(use);}
+						if (at==3) {num.push(use);}
+						if (at==4) {arr.push(use);}
+						if (at==5) {arr.push(use);}
+						if (at==6) {arr.push(use);}
+						use="";at++;
+					}
+					else if (is[i]=="\n")
+					{
+						arr.push(use);
+						opt.push(arr);
+						use="";arr=[];at=0;
+					}
+					else if (is[i]!="\r")
+					{use+=is[i];}
+				}
+				all=typ.length;S("main");
+			}
+			if (localStorage.quizerro==undefined)
+			{localStorage.quizerro="";}
+			H("sel");
+		}
+		function ran()
+		{
+			var last=localStorage.quizlast==undefined?0:localStorage.quizlast;
+			document.getElementById("tip").innerText="题库共"+(all-1)+"题，上次到"+last+"题。";
+			H('main');S('ran');
+		}
+		function go()
+		{
+			now=parseInt(document.getElementById("to").value);
+			if (now>0&&now<all)
+			{
+				document.getElementById("to").value="";
+				nxt={};no=false;
+				for (var i=now;i<all-1;i++){nxt[i]=i+1;}
+				nxt[all-1]=-1;
+				ask(now);H("ran");S("his");
+			}
+		}
+		function her()
+		{
+			var ag=err.filter((v,i,a)=>a.indexOf(v)==i);
+			nxt={};no=true;
+			for (var i=0;i<ag.length-1;i++)
+			{nxt[ag[i]]=ag[i+1];}
+			nxt[ag[ag.length-1]]=-1;
+			now=ag[0];ask(now);H("rev");S("his");
+		}
+		function ok()
+		{
+			for (var i=0;i<4;i++)
+			{document.getElementById("opt").children[i].style.background="white";}
+			tmp=[false,false,false,false];
+		}
+		function ask(k)
+		{
+			document.getElementById("num").innerText=k+"/"+(all-1);
+			document.getElementById("typ").innerText=typ[k];
+			document.getElementById("pro").innerText=pro[k];
+			for (var i=0;i<4;i++)
+			{
+				if (opt[k][i]=="")
+				{document.getElementById("opt").children[i].innerText=""}
+				else
+				{document.getElementById("opt").children[i].innerText=ops[i]+". "+opt[k][i];}
+			}
+			ed=false;H("t2");H("t0");S("t1");
+			ok();
+		}
+		function did(k)
+		{
+			if (ed) {return;}
+			if (tmp[k]) {document.getElementById("opt").children[k].style.background="white";}
+			else {document.getElementById("opt").children[k].style.background="wheat";}
+			tmp[k]=!tmp[k];
+		}
+		function may(f)
+		{
+			if (f)
+			{
+				var erro="";
+				for (var i=0;i<4;i++)
+				{if (tmp[i]){erro+=ops[i];}}
+				if (!no) {localStorage.quizlast=now;}
+				if (erro!=sol[now])
+				{
+					for (var i=0;i<4;i++)
+					{
+						if (tmp[i]!=(sol[now].indexOf(ops[i])!=-1))
+						{document.getElementById("opt").children[i].style.background="coral";}
+					}
+					ed=true;localStorage.quizerro+=now+":"+erro+";";
+					document.getElementById("t2").innerText="提交："+erro+"/答案："+sol[now];
+					H("t1");S("t2");S("t0");return;
+				}
+			}
+			else {ed=false;H("t2");H("t0");S("t1");}
+			ok();
+			if (nxt[now]==-1)
+			{H('his');S('main');}
+			now=nxt[now];ask(now);
+		}
+		function rev()
+		{
+			var s=localStorage.quizerro;
+			err=new Array();errs=new Array();
+			var p="",q="",c="";
+			for (var i=0;i<s.length;i++)
+			{
+				while(s[i]!=":") {p+=s[i];i++}i++;
+				while(s[i]!=";") {q+=s[i];i++}
+				err.push(parseInt(p));errs.push(q);
+				p="";q="";
+			}
+			for (var i=0;i<err.length;i++)
+			{
+				var t="";
+				for (var j=0;j<4;j++)
+				{
+					if (opt[err[i]][j]=="") {break;}
+					t+=`<p>${ops[j]}. ${opt[err[i]][j]}</p>`;
+				}
+				c=`<div><p><b>题号：</b>${err[i]}&emsp;<button onclick="del(${i})">删除</button></p><p><b>题型：</b>${typ[err[i]]}</p><p><b>题目：</b>${pro[err[i]]}</p>${t}<p style="color:blue;">提交：${errs[i]}/答案：${sol[err[i]]}</p></div><hr>`+c;
+			}
+			document.getElementById("her").innerHTML=c;
+			H('main');S('rev');
+		}
+		function del(k)
+		{
+			if (!confirm('Sure?')) {return;}
+			var s="";
+			for (var i=0;i<err.length;i++)
+			{if (i!=k) {s+=err[i]+":"+errs[i]+";";}}
+			localStorage.quizerro=s;rev();
+		}
+	</script>
+</html>
