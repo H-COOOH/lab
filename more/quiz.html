@@ -33,9 +33,10 @@
 				<p onclick="did(2)"></p>
 				<p onclick="did(3)"></p>
 			</div>
+			<p id="warn" style="color:red;">提醒：已选数量与题型不相符。</p>
 			<p id="t1"><button class="next" onclick="may(1)">提交</button></p>
 			<p id="t2" style="color:red;"></p>
-			<p id="t0" style="display:none;"><button class="next" onclick="may(0)">确定</button></p>
+			<p id="t0"><button class="next" onclick="may(0)">确定</button></p>
 			<p><button class="next" onclick="if(confirm('Sure?')){H('his');S('main');}">返回</button></p>
 		</div>
 		<div id="rev" style="display:none;">
@@ -146,8 +147,7 @@
 				else
 				{document.getElementById("opt").children[i].innerText=ops[i]+". "+opt[k][i];}
 			}
-			ed=false;H("t2");H("t0");S("t1");
-			ok();
+			ed=false;H("warn");H("t2");H("t0");S("t1");ok();
 		}
 		function did(k)
 		{
@@ -155,6 +155,9 @@
 			if (tmp[k]) {document.getElementById("opt").children[k].style.background="white";}
 			else {document.getElementById("opt").children[k].style.background="wheat";}
 			tmp[k]=!tmp[k];
+			var s=tmp.reduce((a,b)=>a+b,0);
+			if (typ[now]!="多选题"&&s!=1||typ[now]=="多选题"&&s<=1) {S("warn");}
+			else {H("warn");}
 		}
 		function may(f)
 		{
