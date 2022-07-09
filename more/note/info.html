@@ -57,13 +57,15 @@
 			document.body.children[10].value=json["more"];
 			if (json["read"])
 			{
-				document.body.children[6].style.display="none";
+				document.getElementById("k0").disabled=true;
+				document.getElementById("k1").disabled=true;
 				document.body.children[8].disabled=true;
 				document.body.children[10].disabled=true;
 			}
 			else
 			{
-				document.body.children[6].style.display="block";
+				document.getElementById("k0").disabled=false;
+				document.getElementById("k1").disabled=false;
 				document.body.children[8].disabled=false;
 				document.body.children[10].disabled=false;
 			}
@@ -76,7 +78,7 @@
 				var k=document.getElementById("k0").value;
 				if (k!=document.getElementById("k1").value)
 				{alert("密码不一致");return;}
-				key=k;document.cookie=name+"="+k;
+				key=k;document.cookie=name+"=@"+k+"@";
 				json["only"]=k==""?"":md5(data);
 			}
 			if (r==3)

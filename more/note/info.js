@@ -25,7 +25,7 @@ function gkey(note)
 		while(u[0]==" ")
 		{u=u.substr(1);}
 		if (!u.indexOf(note+"="))
-		{return u.substr(note.length+1);}
+		{return u.slice(note.length+2,-1);}
 	}
 	return "";
 }

@@ -75,12 +75,12 @@
 				load(false);
 				W("name").innerText=name.substr(name.indexOf("$")+1);
 				if (json["only"]=="")
-				{document.cookie=name+"=";ini();return;}
+				{ini();return;}
 				var k=gkey(name);
 				if (k!="")
 				{
 					data=CryptoJS.AES.decrypt(data,k).toString(CryptoJS.enc.Utf8);
-					document.cookie=name+"="+k;ini();return;
+					document.cookie=name+"=@"+k+"@";ini();return;
 				}
 				W("auth").children[1].focus();
 			}
@@ -92,7 +92,7 @@
 				catch(err){s="";}
 				if (md5(s)!=json["only"])
 				{alert("密码错误，请重试");return;}
-				data=s;document.cookie=name+"="+k;ini();
+				data=s;document.cookie=name+"=@"+k+"@";ini();
 			}
 			function ini()
 			{
@@ -117,7 +117,7 @@
 					W("save").style.display="none";
 					W("info").src="about:blank";
 					W("vc").style.display="block";
-					load(true);ajs();
+					load(false);ajs();
 				}
 			}
 			function F(r)
