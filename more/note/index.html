@@ -1,0 +1,392 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<script src="/js/an.js"></script>
+		<title>Notes</title>
+	</head>
+	<body onload="L()">
+		<h1>Notes</h1>
+		<div id="help">
+			<p><b>目录：</b><span id="how"></span></p>
+			<ul id="main" style="font-size:18px;margin-left:2%;"></ul>
+			<br><p><a href="./with.html">加密</a>&emsp;&emsp;<a href="/lab/index.html">返回</a></p>
+		</div>
+		<div id="less" style="display:none;">
+			<p><b>目录：</b><span onclick="awaym(1)" style="color:lime;">Root</span><b>/</b><span style="color:lime;">回收站</span><b>/</b></p>
+			<ul id="mean" style="font-size:18px;margin-left:2%;"></ul>
+			<br><p><a href="./with.html">加密</a>&emsp;&emsp;<a href="/lab/index.html">返回</a></p>
+		</div>
+		<div id="showx" style="display:none;">
+			<div onclick="move(1)">粘贴笔记</div>
+			<div onclick="star()">新建笔记</div>
+			<div onclick="add()">新建文件夹</div>
+		</div>
+		<div id="showy" style="display:none;">
+			<div onclick="del()">删除</div>
+			<div onclick="edt()">重命名</div>
+		</div>
+		<div id="showz" style="display:none;">
+			<div onclick="view(0)">查看</div>
+			<div onclick="view(1)">编辑</div>
+			<div onclick="edit(0)">重命名</div>
+			<div onclick="move(0)">剪切</div>
+			<div onclick="edit(1)" style="color:red;">归档</div>
+			<div onclick="remv()" style="color:red;">删除</div>
+		</div>
+		<div id="showt" style="display:none;">
+			<div onclick="view(0)">查看</div>
+			<div onclick="move(0)">剪切</div>
+			<div onclick="real()" style="color:red;">删除</div>
+		</div>
+		<style>
+			#showx,#showy,#showz,#showt
+			{
+				display:none;
+				position:absolute;
+				background-color:cyan;
+			}
+			#showx div,#showy div,#showz div,#showt div
+			{
+				padding:3px;
+				border:1px solid;
+				zoom:90%;
+			}
+		</style>
+	</body>
+	<script>
+		var his=["Root"],at,oh;
+		var file,path,note,done;
+		document.getElementById("main").oncontextmenu=function(o){showx(o);return false;}
+		document.getElementById("mean").oncontextmenu=function(){return false;}
+		document.onclick=function(){hide(0);}
+		function L()
+		{
+			if (localStorage.dictwith=="true")
+			{
+				document.getElementById("help").style.display="none";
+				window.location.href="./need.html";return;
+			}
+			var r=localStorage.dictlist;
+			if (r==undefined)
+			{r="Root/:#";localStorage.dictlist=r;}
+			file={};
+			var u="",v="",w=new Array();
+			for (var i=0;i<r.length;i++)
+			{
+				if (r[i]==":")
+				{v=u;u="";}
+				else if (r[i]=="|")
+				{w.push(u);u="";}
+				else if (r[i]=="#")
+				{file[v]=w;v="";w=new Array();}
+				else
+				{u+=r[i];}
+			}
+			r=localStorage.dictdata;
+			if (r==undefined)
+			{r="";localStorage.dictdata=r;}
+			path=new Array(),note=new Array(),done=new Array();
+			for (var i=0;i<r.length;i++)
+			{
+				if (r[i]=="$")
+				{path.push(u);u="";}
+				else if (r[i]=="#")
+				{note.push(u);u="";i++;done.push(r[i]=="Y");}
+				else
+				{u+=r[i];}
+			}
+			show();
+		}
+		function di()
+		{return his.join("/")+"/";}
+		function storem()
+		{
+			var st="";
+			for (var i in file)
+			{
+				if (!file[i].length)
+				{st+=i+":#";}
+				else
+				{st+=i+":"+file[i].join("|")+"|#";}
+			}
+			localStorage.dictlist=st;
+		}
+		function storen()
+		{
+			var st="";
+			for (var i=0;i<path.length;i++)
+			{st+=path[i]+"$"+note[i]+(done[i]?"#Y":"#N");}
+			localStorage.dictdata=st;
+		}
+		function add()
+		{
+			var op=di();
+			var ha=prompt("新建：");
+			if (ha==null||ha=="") {return;}
+			if (!checkm(op,ha))
+			{alert("已存在同名文件夹");return;}
+			file[op].push(ha);file[op+ha+"/"]=[];
+			storem();show();
+		}
+		function del()
+		{
+			if (!confirm("确定删除?\n此操作无法恢复")) {return;}
+			var op=di();
+			file[op].splice(file[op].indexOf(at),1);
+			op+=at+"/";
+			for (var i in file)
+			{
+				if (i.indexOf(op)==0)
+				{delete file[i];}
+			}
+			storem();show();
+		}
+		function edt()
+		{
+			var op=di();
+			var ha=prompt("重命名：",at);
+			if (ha==null||ha=="") {return;}
+			if (!checkm(op,ha))
+			{alert("已存在同名文件夹");return;}
+			file[op].splice(file[op].indexOf(at),1);
+			file[op].push(ha);
+			var np=op+ha+"/";
+			op+=at+"/";
+			var lo=op.length;
+			for (var i in file)
+			{
+				if (i.indexOf(op)!=0) {continue;}
+				file[np+i.substr(lo)]=file[i];
+				delete file[i];
+			}
+			for (var i=0;i<path.length;i++)
+			{
+				if (path[i].indexOf(op)!=0) {continue;}
+				localStorage.setItem(np+path[i].substr(lo)+"$"+note[i],localStorage.getItem(path[i]+"$"+note[i]));
+				localStorage.removeItem(path[i]+"$"+note[i]);
+				path[i]=np+path[i].substr(lo);
+			}
+			storem();storen();show();
+		}
+		function show()
+		{
+			document.getElementById("less").style.display="none";
+			document.getElementById("help").style.display="block";
+			var op=di(),re="";
+			for (var i=0;i<his.length;i++)
+			{re+=`<span onclick='awaym(${i})' style='color:lime;'>${his[i]}</span><b>/</b>`;}
+			document.getElementById("how").innerHTML=re;re="";
+			if (op=="Root/")
+			{re+=`<li style='color:aqua'><p style='color:black'><span onclick='window.location.href="./set.html"'>设置</span></p></li><li style='color:gold'><p style='color:black'><span onclick='shows()'>回收站</span></p></li>`;}
+			for (var i=0;i<file[op].length;i++)
+			{re+=`<li><p><span class='es' onclick='awayn("${file[op][i]}")'>${file[op][i]}</span></p></li>`;}
+			for (var i=0;i<path.length;i++)
+			{
+				if (op!=path[i]) {continue;}
+				if (done[i])
+				{re+=`<li style='color:blue'><p style='color:black'><span class='et' id='n${i}'>${note[i]}</span></p></li>`;}
+				else
+				{re+=`<li style='color:red'><p style='color:black'><span class='et' id='n${i}'>${note[i]}</span></p></li>`;}
+			}
+			if (re=="") {re="<p><i>文件夹为空</i></p>";}
+			document.getElementById("main").innerHTML=re;
+			var es=document.getElementsByClassName("es");
+			for (var i=0;i<es.length;i++)
+			{es[i].oncontextmenu=function(o){showy(o);return false;}}
+			var et=document.getElementsByClassName("et");
+			for (var i=0;i<et.length;i++)
+			{et[i].oncontextmenu=function(o){showz(o);return false;}}
+		}
+		function awaym(r)
+		{his=his.slice(0,r+1);show();}
+		function awayn(r)
+		{his.push(r);show();}
+		function showx(o)
+		{
+			if (o.target.tagName=="SPAN") {return;}
+			if (oh==undefined)
+			{document.getElementById("showx").children[0].style.display="none";}
+			else
+			{document.getElementById("showx").children[0].style.display="block";}
+			document.getElementById("showx").style.left=String(o.pageX)+"px";
+			document.getElementById("showx").style.top=String(o.pageY)+"px";
+			hide(1);
+		}
+		function noy()
+		{
+			var op=di()+at+"/";
+			for (var i=0;i<path.length;i++)
+			{if (!path[i].indexOf(op)) {return true;}}
+			return false;
+		}
+		function showy(o)
+		{
+			at=o.target.innerText;
+			if (noy())
+			{document.getElementById("showy").children[0].style.display="none";}
+			else
+			{document.getElementById("showy").children[0].style.display="block";}
+			document.getElementById("showy").style.left=String(o.pageX)+"px";
+			document.getElementById("showy").style.top=String(o.pageY)+"px";
+			hide(2);
+		}
+		function showz(o)
+		{
+			at=parseInt(o.target.id.substr(1));
+			if (done[at])
+			{
+				document.getElementById("showz").children[1].style.display="none";
+				document.getElementById("showz").children[2].style.display="none";
+				document.getElementById("showz").children[4].style.display="none";
+			}
+			else
+			{
+				document.getElementById("showz").children[1].style.display="block";
+				document.getElementById("showz").children[2].style.display="block";
+				document.getElementById("showz").children[4].style.display="block";
+			}
+			document.getElementById("showz").style.left=String(o.pageX)+"px";
+			document.getElementById("showz").style.top=String(o.pageY)+"px";
+			hide(3);
+		}
+		function showt(o)
+		{
+			at=parseInt(o.target.id.substr(1));
+			document.getElementById("showt").style.left=String(o.pageX)+"px";
+			document.getElementById("showt").style.top=String(o.pageY)+"px";
+			hide(4);
+		}
+		function shows()
+		{
+			document.getElementById("help").style.display="none";
+			document.getElementById("less").style.display="block";
+			var re="";
+			for (var i=0;i<path.length;i++)
+			{
+				if (path[i]=="Root/回收站/")
+				{re+=`<li style='color:green'><p style='color:black'><span class='ed' id='n${i}'>${note[i]}</span></p></li>`;}
+			}
+			if (re=="") {re="<p><i>回收站为空</i></p>";}
+			document.getElementById("mean").innerHTML=re;
+			var ed=document.getElementsByClassName("ed");
+			for (var i=0;i<ed.length;i++)
+			{ed[i].oncontextmenu=function(o){showt(o);return false;}}
+		}
+		function hide(o)
+		{
+			if (o==1) {document.getElementById("showx").style.display="block";}
+			else {document.getElementById("showx").style.display="none";}
+			if (o==2) {document.getElementById("showy").style.display="block";}
+			else {document.getElementById("showy").style.display="none";}
+			if (o==3) {document.getElementById("showz").style.display="block";}
+			else {document.getElementById("showz").style.display="none";}
+			if (o==4) {document.getElementById("showt").style.display="block";}
+			else {document.getElementById("showt").style.display="none";}
+		}
+		function checkm(op,ha)
+		{
+			if (op=="Root/"&&ha=="回收站") {return false;}
+			for (var i=0;i<file[op].length;i++)
+			{if (ha==file[op][i]) {return false;}}
+			return true;
+		}
+		function checkn(ha)
+		{
+			for (var i=0;i<path.length;i++)
+			{if (ha==path[i]+"$"+note[i]) {return false;}}
+			return true;
+		}
+		function star()
+		{
+			var op=di();
+			var is=prompt("名称：");
+			if (is==null||is=="")
+			{return;}
+			var ch=op+"$"+is;
+			if (!checkn(ch))
+			{alert("已存在同名文件");return;}
+			localStorage.setItem(ch,"{}$");
+			path.push(op);note.push(is);done.push(false);
+			storen();show();
+		}
+		function view(r)
+		{
+			if (r)
+			{sessionStorage.ntename=path[at]+"$"+note[at];window.open("edit.html");}
+			else
+			{sessionStorage.ntvname=path[at]+"$"+note[at];window.open("view.html");}
+		}
+		function edit(r)
+		{
+			if (r)
+			{
+				if (!confirm("确定归档?\n此操作无法恢复")) {return;}
+				done[at]=true;
+			}
+			else
+			{
+				var ed=note[at],is=prompt("名称：",ed);
+				if (is==null||is=="") {return;}
+				var ch=path[at]+"$"+is;
+				if (!checkn(ch))
+				{alert("已存在同名文件");return;}
+				localStorage.setItem(ch,localStorage.getItem(path[at]+"$"+ed));
+				localStorage.removeItem(path[at]+"$"+ed);
+				note[at]=is;
+			}
+			storen();show();
+		}
+		function remv()
+		{
+			var ed=path[at],es=note[at],s=0,flag=false;
+			path[at]="Root/回收站/";
+			for (var i=0;i<path.length;i++)
+			{
+				if (i!=at&&path[i]==path[at]&&note[i]==es)
+				{flag=true;s++;break;}
+			}
+			while(flag)
+			{
+				flag=false;
+				for (var i=0;i<path.length;i++)
+				{
+					if (path[i]==path[at]&&note[i]==es+"_"+s)
+					{flag=true;s++;break;}
+				}
+			}
+			if (s)
+			{note[at]=es+"_"+s;}
+			if (oh==at) {oh=undefined}
+			localStorage.setItem(path[at]+"$"+note[at],localStorage.getItem(ed+"$"+es));
+			localStorage.removeItem(ed+"$"+es);
+			storen();show();
+		}
+		function move(r)
+		{
+			if (r)
+			{
+				var ed=path[oh],op=di();
+				var ch=op+"$"+note[oh];
+				if (!checkn(ch))
+				{alert("已存在同名文件");return;}
+				localStorage.setItem(ch,localStorage.getItem(ed+"$"+note[oh]));
+				localStorage.removeItem(ed+"$"+note[oh]);
+				path[oh]=op;oh=undefined;
+				storen();show();
+			}
+			else
+			{oh=at;}
+		}
+		function real()
+		{
+			if (!confirm("确定删除?\n此操作无法恢复")) {return;}
+			if (oh==at) {oh=undefined}
+			else if (oh>at) {oh--;}
+			localStorage.removeItem(path[at]+"$"+note[at]);
+			for (var i=at;i<path.length-1;i++)
+			{path[i]=path[i+1];note[i]=note[i+1];done[i]=done[i+1];}
+			path.pop();note.pop();done.pop();
+			storen();shows();
+		}
+	</script>
+</html>
