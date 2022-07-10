@@ -31,7 +31,7 @@
 				ago=localStorage.dictago;
 				if (ago==undefined)
 				{document.getElementById("D").disabled=true;}
-				var u=localStorage.dictlist,n="";
+				var u=localStorage.dictdata,n="";
 				for (var i=0;i<u.length;i++)
 				{
 					if (u[i]=="#")
@@ -62,7 +62,7 @@
 				{if (note[i].indexOf("∅")!=-1||localStorage.getItem(note[i]).indexOf("∅")!=-1){tF=true;break;}}
 				if (tF)
 				{return null;}
-				var oF=localStorage.dictdata+"∅"+localStorage.dictlist+"∅";
+				var oF=localStorage.dictlist+"∅"+localStorage.dictdata+"∅";
 				for (var i=0;i<A;i++)
 				{oF+=note[i]+"∅"+localStorage.getItem(note[i])+"∅";}
 				return oF;
@@ -71,8 +71,8 @@
 			{
 				for (var i=0;i<note.length;i++)
 				{localStorage.removeItem(note[i]);}
-				localStorage.removeItem("dictdata");
 				localStorage.removeItem("dictlist");
+				localStorage.removeItem("dictdata");
 			}
 			function S()
 			{

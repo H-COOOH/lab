@@ -33,7 +33,8 @@
 				<h3>请提供密码</h3>
 				<input type="password" onkeydown="nxt()" style="width:120px;height:30px;">
 			</div>
-			<iframe src="about:blank" id="info" style="display:none;"></iframe>
+			<iframe src="about:blank" id="info"></iframe>
+			<div id="none"></div>
 			<p id="hide" style="position:fixed;bottom:5%;right:3%;z-index:4;font-size:17px;display:none;">
 				<a onclick="vif(0)" href="#">关闭</a>
 			</p>
@@ -63,8 +64,20 @@
 				top:8%;left:38%;
 				width:24%;
 				height:84%;
+				display:none;
 				position:absolute;
 				background-color:mistyrose;
+			}
+			#none
+			{
+				top:8%;left:38%;
+				width:24%;
+				height:84%;
+				display:none;
+				z-index:4;
+				opacity:0.3;
+				position:absolute;
+				background-color:floralwhite;
 			}
 		</style>
 		<script>
@@ -102,6 +115,7 @@
 				W("save").style.display="none";
 				W("auth").style.display="none";
 				W("info").style.display="block";
+				W("none").style.display="block";
 				W("hide").style.display="block";
 			}
 			function vif(r)
