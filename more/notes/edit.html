@@ -1,7 +1,11 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<script src="/js/an.js" type="text/javascript"></script>
+		<script src="./info.js" type="text/javascript"></script>
+		<script src="/js/md5.js" type="text/javascript"></script>
+		<script src="/js/AES.js" type="text/javascript"></script>
 		<script src="/lab/js/show.js" type="text/javascript"></script>
 		<link rel="stylesheet" href="/lab/js/katex.css">
 		<script defer src="/lab/js/katex.js"></script>
@@ -9,31 +13,29 @@
 	</head>
 	<body onload=L()>
 		<div>
-			<h1 id="name"></h1>
-			<textarea id="main" oninput=C() onscroll=Ms()></textarea><br><br>
-			<button onclick="S(-1)" id="Si" style="width:20vw;height:5vh;margin-left:2%;">
+			<h1 id="name" style="margin-left:1%;"></h1>
+			<textarea id="main" oninput=edt() onscroll=Ms()></textarea><br><br>
+			<button onclick="sav()" id="Si" style="width:20%;height:5vh;margin-left:2%;">
 				<span>保存</span><small style="color:red;">(未保存)</small>
 			</button>
-			<button onclick=L() style="width:10vw;height:5vh;margin-left:2%;">取消</button>
+			<button onclick=agn() style="width:10%;height:5vh;margin-left:2%;">取消</button>
 			&emsp;&emsp;<span>字数统计：共</span><b id="cout"></b><span>字</span>
 		</div>
 		<div id="see" onscroll=Ns()></div>
-		<div id="save">
-			<div id="errs">
-				<h2 style="text-align:center;margin-top:10%;">无法保存</h2>
-				<div align="center" style="margin-top:10%;">
-					<button class="opt" onclick="S(0)">确定</button>
-				</div>
+		<p style="position:fixed;bottom:4%;right:3%;z-index:2;font-size:17px;">
+			<a id="vc" onclick="vif(1)" href="#">属性</a>
+		</p>
+		<div id="save" align="center">
+			<div id="auth">
+				<h3>请提供密码</h3>
+				<input type="password" onkeydown="nxt()" style="width:120px;height:30px;">
 			</div>
-			<div id="opts">
-				<h2 style="text-align:center;margin-top:10%;">添加时间戳？</h2>
-				<div align="center" style="margin-top:10%;">
-					<button class="opt" onclick="S(1)">是</button>&emsp;
-					<button class="opt" onclick="S(2)">否</button>&emsp;
-					<button class="opt" onclick="S(0)">取消</button>
-				</div>
-			</div>
+			<iframe src="about:blank" id="info" style="display:none;"></iframe>
+			<p id="hide" style="position:fixed;bottom:4%;right:3%;z-index:2;font-size:17px;display:none;">
+				<a onclick="vif(0)" href="#">关闭</a>
+			</p>
 		</div>
+		<style id="like"></style>
 		<style>
 			#main
 			{
@@ -58,106 +60,138 @@
 			}
 			#save
 			{
-				left:0;
-				top:0;
+				top:0;left:0;
 				width:100%;
 				height:100%;
-				z-index:100;
+				z-index:3;
 				opacity:0.9;
-				display:none;
 				position:absolute;
 				background-color:#09A7A1;
 			}
-			#opts,#errs
+			#auth
 			{
-				left:35%;
-				top:35%;
-				width:30%;
-				height:30%;
-				z-index:120;
+				top:42%;left:42%;
+				width:16%;
+				height:16%;
 				position:absolute;
-				background-color:#FF790E;
+				background-color:mistyrose;
 			}
-			.opt
+			#info
 			{
-				width:5vw;
-				height:5vh;
-				zoom:120%;
+				top:8%;left:38%;
+				width:24%;
+				height:84%;
+				position:absolute;
+				background-color:mistyrose;
 			}
 		</style>
 		<script>
-			var name,Mc=true,Nc=true;
-			var Mi=document.getElementById("main"),Ni=document.getElementById("see");
+			var t,Mc=true,Nc=true,Mi=W("main"),Ni=W("see");
+			function W(id)
+			{return document.getElementById(id);}
 			function L()
 			{
-				var show=localStorage.dictshow;
-				if (show!=undefined)
+				load(true);
+				W("name").innerText=name.substr(name.indexOf("$")+1);
+				if (json["only"]=="")
+				{ini();return;}
+				var k=gkey(name);
+				if (k!="")
 				{
-					var add=document.createElement("style");
-					add.innerText="#see{"+show.replaceAll(";"," !important;")+"}";
+					data=CryptoJS.AES.decrypt(data,k).toString(CryptoJS.enc.Utf8);
+					document.cookie=name+"=@"+k+"@";ini();return;
 				}
-				document.body.appendChild(add);
-				name=sessionStorage.ntename;
-				document.getElementById("name").innerText=name.substr(name.indexOf("$")+1);
-				var main=localStorage.getItem(name);
-				document.getElementById("main").value=main;C();
-				document.getElementById("Si").children[1].style.display="none";
-				window.onbeforeunload="";
+				W("auth").children[1].focus();
 			}
-			function C()
+			function nxt()
 			{
-				var main=document.getElementById("main").value;
+				if (event.keyCode!=13) {return;}
+				var s=data,k=W("auth").children[1].value;
+				try{s=CryptoJS.AES.decrypt(s,k).toString(CryptoJS.enc.Utf8);}
+				catch(err){s="";}
+				if (md5(s)!=json["only"])
+				{alert("密码错误，请重试");return;}
+				data=s;document.cookie=name+"=@"+k+"@";ini();
+			}
+			function agn()
+			{W("main").value=data;edt();eds();}
+			function ini()
+			{
+				ajs();agn();
+				W("save").style.display="none";
+				W("auth").style.display="none";
+				W("info").style.display="block";
+				W("hide").style.display="block";
+				setInterval(function(){t++;},1000);
+			}
+			function edt()
+			{
+				var main=W("main").value;
 				var R=O(main,true);
-				document.getElementById("see").innerHTML=R[0];
-				document.getElementById("cout").innerText=String(R[1]);
-				document.getElementById("Si").children[1].style.display="inline";
+				W("see").innerHTML=R[0];
+				W("cout").innerText=String(R[1]);
 				window.onbeforeunload=function(e){return "";}
+				W("Si").children[1].style.display="inline";
 			}
-			function S(k)
+			function eds()
 			{
-				if (!~k)
+				t=0;window.onbeforeunload="";
+				W("Si").children[1].style.display="none";
+			}
+			function ajs()
+			{
+				if (json["read"])
+				{W("main").readOnly=true;W("Si").disabled=true;}
+				else
+				{W("main").readOnly=false;W("Si").disabled=false;}
+				W("like").innerText="#see{"+json["show"].replaceAll(";"," !important;")+"}";
+			}
+			function sav()
+			{
+				if (localStorage.getItem(name)==undefined)
+				{alert("无法保存~");return;}
+				if (!confirm("确定保存?")) {return;}
+				data=W("main").value;
+				var ti=new Date(),tu;
+				tu=String(ti.getFullYear())+"/"+String(ti.getMonth()+1).padStart(2,"0")+"/"+String(ti.getDate()).padStart(2,"0")+" "+String(ti.getHours()).padStart(2,"0")+":"+String(ti.getMinutes()).padStart(2,"0");
+				json["last"]=tu;
+				json["edit"]+=t;
+				if (json["only"]=="")
+				{localStorage[name]=JSON.stringify(json)+"$"+data;}
+				else
 				{
-					if (localStorage.getItem(name)==undefined)
-					{
-						document.getElementById("errs").style.display="block";
-						document.getElementById("opts").style.display="none";
-					}
-					else
-					{
-						document.getElementById("opts").style.display="block";
-						document.getElementById("errs").style.display="none";
-					}
-					document.getElementById("save").style.display="block";
-					return;
+					json["only"]=md5(data);localStorage[name]=JSON.stringify(json)+"$";
+					localStorage[name]+=CryptoJS.AES.encrypt(data,gkey(name)).toString();
 				}
-				else if (!k)
-				{document.getElementById("save").style.display="none";return;}
-				if (k==1)
+				eds();
+			}
+			function vif(r)
+			{
+				if (r)
 				{
-					var ti=new Date();
-					var use=String(ti.getFullYear())+"/"+String(ti.getMonth()+1).padStart(2,"0")+"/"+String(ti.getDate()).padStart(2,"0")+" "+String(ti.getHours()).padStart(2,"0")+":"+String(ti.getMinutes()).padStart(2,"0");
-					document.getElementById("main").value+="\n{*|更新于}{/|"+use+"}";
+					W("info").src="./info.html";
+					W("vc").style.display="none";
+					W("save").style.display="block";
 				}
-				localStorage.setItem(name,document.getElementById("main").value);
-				document.getElementById("save").style.display="none";L();
+				else
+				{
+					W("save").style.display="none";
+					W("info").src="about:blank";
+					W("vc").style.display="block";
+					load(true);ajs();
+				}
 			}
 			function Ms()
 			{
 				if (Mc)
-				{
-					Nc=false;
-					Ni.scrollTop=Mi.scrollTop/(Mi.scrollHeight-Mi.clientHeight)*(Ni.scrollHeight-Ni.clientHeight);
-				}
+				{Nc=false;Ni.scrollTop=Mi.scrollTop/(Mi.scrollHeight-Mi.clientHeight)*(Ni.scrollHeight-Ni.clientHeight);}
 				else
 				{Mc=true;}
 			}
 			function Ns()
 			{
 				if (Nc)
-				{
-					Mc=false;
-					Mi.scrollTop=Ni.scrollTop/(Ni.scrollHeight-Ni.clientHeight)*(Mi.scrollHeight-Mi.clientHeight);
-				}
+				{Mc=false;Mi.scrollTop=Ni.scrollTop/(Ni.scrollHeight-Ni.clientHeight)*(Mi.scrollHeight-Mi.clientHeight);}
 				else
 				{Nc=true;}
 			}

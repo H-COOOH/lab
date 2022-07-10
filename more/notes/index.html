@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<script src="/js/an.js"></script>
 		<title>Notes</title>
 	</head>
@@ -53,10 +54,8 @@
 		</style>
 	</body>
 	<script>
-		var N,to,data,up,no,at,oh;
-		var itto,toit,itis;
-		var his=new Array(),As=1;
-		var path,note,done,A;
+		var his=["Root"],at,oh;
+		var file,path,note,done;
 		document.getElementById("main").oncontextmenu=function(o){showx(o);return false;}
 		document.getElementById("mean").oncontextmenu=function(){return false;}
 		document.onclick=function(){hide(0);}
@@ -65,174 +64,129 @@
 			if (localStorage.dictwith=="true")
 			{
 				document.getElementById("help").style.display="none";
-				window.location.href="./need.html";
-				return;
+				window.location.href="./need.html";return;
 			}
-			var u=localStorage.dictlist,i=0;
-			if (u==undefined)
+			var r=localStorage.dictlist;
+			if (r==undefined)
+			{r="Root/:#";localStorage.dictlist=r;}
+			file={};
+			var u="",v="",w=new Array();
+			for (var i=0;i<r.length;i++)
 			{
-				u="";
-				localStorage.dictlist="";
+				if (r[i]==":")
+				{v=u;u="";}
+				else if (r[i]=="|")
+				{w.push(u);u="";}
+				else if (r[i]=="#")
+				{file[v]=w;v="";w=new Array();}
+				else
+				{u+=r[i];}
 			}
-			path=new Array(),note=new Array(),done=new Array(),A=0;
-			for (var j=0;j<u.length;j++)
+			r=localStorage.dictdata;
+			if (r==undefined)
+			{r="";localStorage.dictdata=r;}
+			path=new Array(),note=new Array(),done=new Array();
+			for (var i=0;i<r.length;i++)
 			{
-				if (u[j]=="$")
-				{A++;path[A]=u.substring(i,j);i=j+1;}
-				else if (u[j]=="#")
-				{note[A]=u.substring(i,j);done[A]=u[j+1]=="Y";i=j+2;}
-			}
-			u=localStorage.dictdata,i=0;
-			if (u==undefined)
-			{
-				u="0|";
-				localStorage.dictdata=u;
-			}
-			for (;u[i]!="|"&&i<u.length;i++);
-			N=parseInt(u.substring(0,i));no=undefined;
-			to=new Array();data=new Array();up=new Array();
-			for (var j=0;j<=N;j++)
-			{
-				to[j]=new Array();
-				to[j][0]=0;
-			}
-			his[1]=0;data[0]="Root";
-			for (var j=1;j<=N;j++)
-			{
-				i++;var last=i;
-				for (;u[i]!="Y"&&i<u.length;i++);
-				var pa=parseInt(u.substring(last,i));
-				to[pa][0]++;
-				to[pa][to[pa][0]]=j;
-				up[j]=pa;
-			}
-			for (var j=1;j<=N;j++)
-			{
-				i++;var last=i;
-				for (;u[i]!="$"&&i<u.length;i++);
-				data[j]=u.substring(last,i);
+				if (r[i]=="$")
+				{path.push(u);u="";}
+				else if (r[i]=="#")
+				{note.push(u);u="";i++;done.push(r[i]=="Y");}
+				else
+				{u+=r[i];}
 			}
 			show();
 		}
-		function run(at)
-		{
-			itto[itis]=at;toit[at]=itis;
-			for (var i=1;i<=to[at][0];i++)
-			{
-				if (to[at][i]!=no)
-				{itis++;run(to[at][i]);}
-			}
-		}
+		function di()
+		{return his.join("/")+"/";}
 		function storem()
 		{
-			itto=new Array();toit=new Array();
-			itis=0;
-			run(0);
-			var re=String(itis)+"|";
-			for (var i=1;i<=itis;i++)
-			{re+=String(toit[up[itto[i]]])+"Y";}
-			for (var i=1;i<=itis;i++)
-			{re+=data[itto[i]]+"$";}
-			localStorage.dictdata=re;
+			var st="";
+			for (var i in file)
+			{
+				if (!file[i].length)
+				{st+=i+":#";}
+				else
+				{st+=i+":"+file[i].join("|")+"|#";}
+			}
+			localStorage.dictlist=st;
 		}
 		function storen()
 		{
-			var re="";
-			for (var i=1;i<=A;i++)
-			{
-				if (done[i])
-				{re+=path[i]+"$"+note[i]+"#Y";}
-				else
-				{re+=path[i]+"$"+note[i]+"#N";}
-			}
-			localStorage.dictlist=re;
+			var st="";
+			for (var i=0;i<path.length;i++)
+			{st+=path[i]+"$"+note[i]+(done[i]?"#Y":"#N");}
+			localStorage.dictdata=st;
 		}
 		function add()
 		{
-			at=his[As];
-			var is=prompt("新建：");
-			if (is==null||is=="")
-			{return;}
-			if (!checkm(at,is))
+			var op=di();
+			var ha=prompt("新建：");
+			if (ha==null||ha=="") {return;}
+			if (!checkm(op,ha))
 			{alert("已存在同名文件夹");return;}
-			N++;to[at][0]++;
-			to[at][to[at][0]]=N;
-			to[N]=new Array();
-			to[N][0]=0;
-			up[N]=at;
-			data[N]=is;
-			storem();
-			show();
+			file[op].push(ha);file[op+ha+"/"]=[];
+			storem();show();
 		}
 		function del()
 		{
-			if (!confirm("确定删除?\n此操作也将删除子目录")) {return;}
-			no=at;
-			storem();
-			L();
+			if (!confirm("确定删除?\n此操作无法恢复")) {return;}
+			var op=di();
+			file[op].splice(file[op].indexOf(at),1);
+			op+=at+"/";
+			for (var i in file)
+			{
+				if (i.indexOf(op)==0)
+				{delete file[i];}
+			}
+			storem();show();
 		}
 		function edt()
 		{
-			var is=prompt("重命名：",data[at]);
-			if (is==null||is=="")
-			{return;}
-			if (!checkm(his[As],is))
+			var op=di();
+			var ha=prompt("重命名：",at);
+			if (ha==null||ha=="") {return;}
+			if (!checkm(op,ha))
 			{alert("已存在同名文件夹");return;}
-			var ro,re="",rd="",le;
-			for (var i=1;i<=As;i++)
-			{re+=data[his[i]]+"/";}
-			ro=re+is+"/";
-			re+=data[at]+"/";
-			le=re.length;
-			for (var i=1;i<=A;i++)
+			file[op].splice(file[op].indexOf(at),1);
+			file[op].push(ha);
+			var np=op+ha+"/";
+			op+=at+"/";
+			var lo=op.length;
+			for (var i in file)
 			{
-				if (path[i].indexOf(re)!=0)
-				{
-					if (done[i])
-					{rd+=path[i]+"$"+note[i]+"#Y";}
-					else
-					{rd+=path[i]+"$"+note[i]+"#N";}
-				}
-				else
-				{
-					if (done[i])
-					{rd+=ro+path[i].substr(le)+"$"+note[i]+"#Y";}
-					else
-					{rd+=ro+path[i].substr(le)+"$"+note[i]+"#N";}
-					localStorage.setItem(ro+path[i].substr(le)+"$"+note[i],localStorage.getItem(path[i]+"$"+note[i]));
-					localStorage.removeItem(path[i]+"$"+note[i]);
-					path[i]=ro+path[i].substr(le);
-				}
+				if (i.indexOf(op)!=0) {continue;}
+				file[np+i.substr(lo)]=file[i];
+				delete file[i];
 			}
-			localStorage.dictlist=rd;
-			data[at]=is;
-			var rg=String(N)+"|";
-			for (var i=1;i<=N;i++)
-			{rg+=String(up[i])+"Y";}
-			for (var i=1;i<=N;i++)
-			{rg+=data[i]+"$";}
-			localStorage.dictdata=rg;
-			show();
+			for (var i=0;i<path.length;i++)
+			{
+				if (path[i].indexOf(op)!=0) {continue;}
+				localStorage.setItem(np+path[i].substr(lo)+"$"+note[i],localStorage.getItem(path[i]+"$"+note[i]));
+				localStorage.removeItem(path[i]+"$"+note[i]);
+				path[i]=np+path[i].substr(lo);
+			}
+			storem();storen();show();
 		}
 		function show()
 		{
 			document.getElementById("less").style.display="none";
 			document.getElementById("help").style.display="block";
-			var as="",re="";
-			for (var i=1;i<=As;i++)
-			{as+=data[his[i]]+"/";re+="<span onclick='awaym("+String(i)+")' style=\"color:lime;\">"+String(data[his[i]])+"</span><b>/</b>";}
+			var op=di(),re="";
+			for (var i=0;i<his.length;i++)
+			{re+=`<span onclick='awaym(${i})' style='color:lime;'>${his[i]}</span><b>/</b>`;}
 			document.getElementById("how").innerHTML=re;re="";
-			if (his[As]==0)
-			{re+="<li style=\"color:aqua\"><p style=\"color:black\"><span onclick=\"window.location.href='./set.html'\">设置</span></p></li><li style=\"color:gold\"><p style=\"color:black\"><span onclick=\"shows()\">回收站</span></p></li>";}
-			for (var i=1;i<=to[his[As]][0];i++)
-			{re+="<li><p><span class=\"es\" id=\"s"+String(to[his[As]][i])+"\" onclick='awayn("+String(to[his[As]][i])+")'>"+String(data[to[his[As]][i]])+"</span></p></li>";}
-			for (var i=1;i<=A;i++)
+			if (op=="Root/")
+			{re+=`<li style='color:aqua'><p style='color:black'><span onclick='window.location.href="./set.html"'>设置</span></p></li><li style='color:gold'><p style='color:black'><span onclick='shows()'>回收站</span></p></li>`;}
+			for (var i=0;i<file[op].length;i++)
+			{re+=`<li><p><span class='es' onclick='awayn("${file[op][i]}")'>${file[op][i]}</span></p></li>`;}
+			for (var i=0;i<path.length;i++)
 			{
-				if (as!=path[i]) {continue;}
+				if (op!=path[i]) {continue;}
 				if (done[i])
-				{re+="<li style=\"color:blue\"><p style=\"color:black\"><span class=\"et\" id=\"t"+String(i)+"\">"+note[i]+"</span></p></li>";}
+				{re+=`<li style='color:blue'><p style='color:black'><span class='et' id='n${i}'>${note[i]}</span></p></li>`;}
 				else
-				{re+="<li style=\"color:red\"><p style=\"color:black\"><span class=\"et\" id=\"t"+String(i)+"\">"+note[i]+"</span></p></li>";}
+				{re+=`<li style='color:red'><p style='color:black'><span class='et' id='n${i}'>${note[i]}</span></p></li>`;}
 			}
 			if (re=="") {re="<p><i>文件夹为空</i></p>";}
 			document.getElementById("main").innerHTML=re;
@@ -243,10 +197,10 @@
 			for (var i=0;i<et.length;i++)
 			{et[i].oncontextmenu=function(o){showz(o);return false;}}
 		}
-		function awaym(at)
-		{As=at;show();}
-		function awayn(at)
-		{As++;his[As]=at;show();}
+		function awaym(r)
+		{his=his.slice(0,r+1);show();}
+		function awayn(r)
+		{his.push(r);show();}
 		function showx(o)
 		{
 			if (o.target.tagName=="SPAN") {return;}
@@ -258,20 +212,17 @@
 			document.getElementById("showx").style.top=String(o.pageY)+"px";
 			hide(1);
 		}
-		function noy(at)
+		function noy()
 		{
-			var re="";
-			for (var i=1;i<=As;i++)
-			{re+=data[his[i]]+"/";}
-			re+=data[at]+"/";
-			for (var i=1;i<=A;i++)
-			{if (!path[i].indexOf(re)) {return true;}}
+			var op=di()+at+"/";
+			for (var i=0;i<path.length;i++)
+			{if (!path[i].indexOf(op)) {return true;}}
 			return false;
 		}
 		function showy(o)
 		{
-			at=parseInt(o.target.id.substr(1));
-			if (noy(at))
+			at=o.target.innerText;
+			if (noy())
 			{document.getElementById("showy").children[0].style.display="none";}
 			else
 			{document.getElementById("showy").children[0].style.display="block";}
@@ -310,10 +261,10 @@
 			document.getElementById("help").style.display="none";
 			document.getElementById("less").style.display="block";
 			var re="";
-			for (var i=1;i<=A;i++)
+			for (var i=0;i<path.length;i++)
 			{
 				if (path[i]=="Root/回收站/")
-				{re+="<li style=\"color:green\"><p style=\"color:black\"><span class=\"ed\" id=\"d"+String(i)+"\">"+note[i]+"</span></p></li>";}
+				{re+=`<li style='color:green'><p style='color:black'><span class='ed' id='n${i}'>${note[i]}</span></p></li>`;}
 			}
 			if (re=="") {re="<p><i>回收站为空</i></p>";}
 			document.getElementById("mean").innerHTML=re;
@@ -332,34 +283,31 @@
 			if (o==4) {document.getElementById("showt").style.display="block";}
 			else {document.getElementById("showt").style.display="none";}
 		}
-		function checkm(at,r)
+		function checkm(op,ha)
 		{
-			if (at==0&&r=="回收站") {return false;}
-			for (var i=1;i<=to[at][0];i++)
-			{if (r==data[to[at][i]]) {return false;}}
+			if (op=="Root/"&&ha=="回收站") {return false;}
+			for (var i=0;i<file[op].length;i++)
+			{if (ha==file[op][i]) {return false;}}
 			return true;
 		}
-		function checkn(r)
+		function checkn(ha)
 		{
-			for (var i=1;i<=A;i++)
-			{if (r==path[i]+"$"+note[i]) {return false;}}
+			for (var i=0;i<path.length;i++)
+			{if (ha==path[i]+"$"+note[i]) {return false;}}
 			return true;
 		}
 		function star()
 		{
-			var re="";
-			for (var i=1;i<=As;i++)
-			{re+=data[his[i]]+"/"}
+			var op=di();
 			var is=prompt("名称：");
 			if (is==null||is=="")
 			{return;}
-			var ch=re+"$"+is;
+			var ch=op+"$"+is;
 			if (!checkn(ch))
 			{alert("已存在同名文件");return;}
-			localStorage.setItem(ch,"");
-			A++;path[A]=re;note[A]=is;done[A]=false;
-			storen();
-			show();
+			localStorage.setItem(ch,"{}$");
+			path.push(op);note.push(is);done.push(false);
+			storen();show();
 		}
 		function view(r)
 		{
@@ -372,7 +320,7 @@
 		{
 			if (r)
 			{
-				if (!confirm("确定归档?\n此操作不可恢复!")) {return;}
+				if (!confirm("确定归档?\n此操作无法恢复")) {return;}
 				done[at]=true;
 			}
 			else
@@ -390,52 +338,55 @@
 		}
 		function remv()
 		{
-			var ed=path[at],si=undefined;
+			var ed=path[at],es=note[at],s=0,flag=false;
 			path[at]="Root/回收站/";
-			for (var i=1;i<=A;i++)
-			{if (i!=at&&path[i]==path[at]&&note[i]==note[at]) {si=i;break;}}
-			if (si==undefined) {storen();}
-			else
+			for (var i=0;i<path.length;i++)
 			{
-				if (!confirm("回收站已存在同名文件\n确定覆盖?\n此操作不可恢复!")) {path[at]=ed;return;}
-				deal(si);
-				if (at>si) {at--;}
+				if (i!=at&&path[i]==path[at]&&note[i]==es)
+				{flag=true;s++;break;}
 			}
+			while(flag)
+			{
+				flag=false;
+				for (var i=0;i<path.length;i++)
+				{
+					if (path[i]==path[at]&&note[i]==es+"_"+s)
+					{flag=true;s++;break;}
+				}
+			}
+			if (s)
+			{note[at]=es+"_"+s;}
 			if (oh==at) {oh=undefined}
-			localStorage.setItem(path[at]+"$"+note[at],localStorage.getItem(ed+"$"+note[at]));
-			localStorage.removeItem(ed+"$"+note[at]);
-			show();
+			localStorage.setItem(path[at]+"$"+note[at],localStorage.getItem(ed+"$"+es));
+			localStorage.removeItem(ed+"$"+es);
+			storen();show();
 		}
 		function move(r)
 		{
 			if (r)
 			{
-				var ed=path[oh],re="";
-				for (var i=1;i<=As;i++)
-				{re+=data[his[i]]+"/";}
-				var ch=re+"$"+note[oh];
+				var ed=path[oh],op=di();
+				var ch=op+"$"+note[oh];
 				if (!checkn(ch))
 				{alert("已存在同名文件");return;}
 				localStorage.setItem(ch,localStorage.getItem(ed+"$"+note[oh]));
 				localStorage.removeItem(ed+"$"+note[oh]);
-				path[oh]=re;oh=undefined;storen();show();
+				path[oh]=op;oh=undefined;
+				storen();show();
 			}
 			else
 			{oh=at;}
 		}
 		function real()
 		{
-			if (!confirm("确定删除?\n此操作不可恢复!")) {return;}
-			deal(at);shows();
-		}
-		function deal(at)
-		{
+			if (!confirm("确定删除?\n此操作无法恢复")) {return;}
 			if (oh==at) {oh=undefined}
 			else if (oh>at) {oh--;}
 			localStorage.removeItem(path[at]+"$"+note[at]);
-			for (var i=at;i<=A;i++)
+			for (var i=at;i<path.length-1;i++)
 			{path[i]=path[i+1];note[i]=note[i+1];done[i]=done[i+1];}
-			A--;storen();
+			path.pop();note.pop();done.pop();
+			storen();shows();
 		}
 	</script>
 </html>
