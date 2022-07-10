@@ -181,6 +181,8 @@
 					W("info").src="about:blank";
 					W("vc").style.display="block";
 					load(true);ajs();
+					if (json["only"]!="")
+					{data=CryptoJS.AES.decrypt(data,gkey(name)).toString(CryptoJS.enc.Utf8);}
 				}
 			}
 			function Ms()
