@@ -14,7 +14,7 @@
 	<body onload=L()>
 		<h1 id="name"></h1>
 		<div id="tent">
-			<div id="main" style="margin:2%;font-size:17px;"></div>
+			<div id="main" style="margin:2%;font-size:17px;line-height:1.5;"></div>
 			<p style="position:fixed;bottom:2%;right:3%;z-index:2;font-size:17px;">
 				<a onclick="F(1)" href="#">源码</a>
 			</p>
@@ -29,7 +29,7 @@
 			<a id="vc" onclick="vif(1)" href="#">属性</a>
 		</p>
 		<div id="save" align="center">
-			<div id="auth">
+			<div id="auth" style="display:none;">
 				<h3>请提供密码</h3>
 				<input type="password" onkeydown="nxt()" style="width:120px;height:30px;">
 			</div>
@@ -95,6 +95,7 @@
 					data=CryptoJS.AES.decrypt(data,k).toString(CryptoJS.enc.Utf8);
 					document.cookie=name+"=@"+k+"@";ini();return;
 				}
+				W("auth").style.display="block";
 				W("auth").children[1].focus();
 			}
 			function nxt()
@@ -105,15 +106,15 @@
 				catch(err){s="";}
 				if (md5(s)!=json["only"])
 				{alert("密码错误，请重试");return;}
-				data=s;document.cookie=name+"=@"+k+"@";ini();
+				data=s;document.cookie=name+"=@"+k+"@";
+				W("auth").style.display="none";ini();
 			}
 			function ini()
 			{
 				document.getElementById("main").innerHTML=O(data,true)[0];
 				document.getElementById("code").children[0].value=data;
-				W("like").innerText="#see{"+json["show"].replaceAll(";"," !important;")+"}";
+				W("like").innerText="#main{"+json["show"].replaceAll(";"," !important;")+"}";
 				W("save").style.display="none";
-				W("auth").style.display="none";
 				W("info").style.display="block";
 				W("none").style.display="block";
 				W("hide").style.display="block";
