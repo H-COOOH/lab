@@ -44,7 +44,7 @@
 				window.location.href="./need.html";
 				return;
 			}
-			var u=localStorage.dictlist,i=0;
+			var u=localStorage.dictdata,i=0;
 			path=new Array(),note=new Array(),done=new Array(),A=0;
 			var code="<tr><th>上移</th><th>下移</th><th>名称</th><th>路径</th><th>归档</th></tr>";
 			if (u==undefined) {document.getElementById("sort").innerHTML="<tr><td>无笔记</td></tr>";return;}
@@ -96,7 +96,7 @@
 			var now="";
 			for (var i=1;i<=A;i++)
 			{now=now+path[i]+"$"+note[i]+"#"+(done[i]?"Y":"N");}
-			localStorage.dictlist=now;
+			localStorage.dictdata=now;
 			L();
 		}
 		function G()
